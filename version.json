@@ -1,5 +1,5 @@
 {
-    "download_url":  "https://github.com/shengtsxk/-/raw/main/Lingjing-v1.3.1-setup.exe",
-    "notes":  "v1.3.1：修复设置面板红色观感（内容区改为不透明深色）；字体 DPI 自适应；手动检查更新；通用超分辨率 ED-ASR（2x/3x/4x，原创可比DLSS）；学习模型导出/导入/社区共享；更新下载改为程序内下载安装。",
-    "latest_version":  "1.3.1"
+    "download_url":  "https://github.com/shengtsxk/-/raw/main/Lingjing-v1.3.2-setup.exe",
+    "notes":  "v1.3.2：设置面板整体提亮一档，彻底移除选项卡与返回按钮的红色残留；v1.3.1：修复设置面板红色观感（内容区改为不透明深色）；字体 DPI 自适应；手动检查更新；通用超分辨率 ED-ASR（2x/3x/4x，原创可比DLSS）；学习模型导出/导入/社区共享；更新下载改为程序内下载安装。",
+    "latest_version":  "1.3.2"
 }
