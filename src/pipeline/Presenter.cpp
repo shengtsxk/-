@@ -484,14 +484,14 @@ namespace Lingjing {
         LONG dispH = (LONG)outH_;
         if (superResEnabled_ && outW_ >= 4 && outH_ >= 4) {
             float srMs = 0.0f;
-            const uint32_t sw = outW_ * superResScale_;
-            const uint32_t sh = outH_ * superResScale_;
-            presentBits_.resize((size_t)sw * sh * 4);
+            // ED-ASR 只输出目标窗口区域（outW_ x outH_），
+            // 内部通过 UV 映射实现 scale 倍放大，读回量小、延迟低
+            presentBits_.resize((size_t)outW_ * outH_ * 4);
             if (superRes_.upscale(blend.data(), (int)outW_, (int)outH_,
                     (int)superResScale_, presentBits_, srMs)) {
                 dispPtr = presentBits_.data();
-                dispW = (LONG)sw;
-                dispH = (LONG)sh;
+                dispW = (LONG)outW_;
+                dispH = (LONG)outH_;
             } else {
                 // 超分运行中失败（如纹理重建失败）：关闭超分并回缩输出窗口到 1x，
                 // 避免"窗口按 2 倍放大而画面仍为原尺寸"导致画面只占左上角 1/4、其余黑屏
@@ -501,7 +501,9 @@ namespace Lingjing {
             }
         }
 
-        // GDI 输出到预览窗口（缩放适配窗口客户区）
+        // GDI 输出到预览窗口（显示目标窗口区域的画面，放大填满窗口；
+        // 超分开启时源区取超分图的目标窗口区域，而不是把整个超分图
+        // 缩小回窗口——否则超分放大效果被抵消，画面只剩原大小甚至更小）
         HDC hdcOut = GetDC(hOut);
         if (hdcOut) {
             RECT client = {};
@@ -517,9 +519,10 @@ namespace Lingjing {
             bi.bmiHeader.biBitCount = 32;
             bi.bmiHeader.biCompression = BI_RGB;
 
+            // 源区 = 目标窗口客户区尺寸（dispPtr 数据行的前 outW_ 像素）
             StretchDIBits(hdcOut,
                 0, 0, cw, ch,
-                0, 0, dispW, dispH,
+                0, 0, (LONG)outW_, (LONG)outH_,
                 dispPtr, &bi, DIB_RGB_COLORS, SRCCOPY);
 
             ReleaseDC(hOut, hdcOut);

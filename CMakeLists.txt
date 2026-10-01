@@ -16,7 +16,7 @@ cmake_minimum_required(VERSION 3.24)
 # ============================================================================
 
 project(Lingjing
-    VERSION 1.3.8
+    VERSION 1.3.9
     DESCRIPTION "灵境 Lingjing - 通用游戏帧生成软件"
     HOMEPAGE_URL "https://github.com/lingjing-project/lingjing"
     LANGUAGES CXX C)

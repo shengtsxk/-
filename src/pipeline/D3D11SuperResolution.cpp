@@ -345,8 +345,11 @@ bool D3D11SuperResolution::upscale(
     if (scale < 2 || scale > 5) return false;
 
     Impl& d = *impl_;
-    const int outW = width * scale;
-    const int outH = height * scale;
+    // 只处理目标窗口区域（width x height），不生成放大后的全图：
+    // 输出分辨率 = 输入分辨率，shader 内通过 UV 映射实现 scale 倍放大，
+    // GPU 计算量与读回量降为全图方案的 1/scale^2，大幅降低延迟。
+    const int outW = width;
+    const int outH = height;
     const int outPitch = outW * 4;
 
     // 尺寸变化时重建资源
@@ -420,7 +423,7 @@ bool D3D11SuperResolution::upscale(
     ctx->CSSetUnorderedAccessViews(0, 1, d.uavOut.GetAddressOf(), nullptr);
     ctx->CSSetShader(d.csEDASR.Get(), nullptr, 0);
 
-    // dispatch
+    // dispatch（只计算目标窗口区域）
     ctx->Dispatch((outW + 15) / 16, (outH + 15) / 16, 1);
 
     // GPU 同步（计时含 GPU 执行时间）
@@ -429,10 +432,15 @@ bool D3D11SuperResolution::upscale(
     QueryPerformanceCounter(&t0);
     if (d.syncQuery) {
         ctx->End(d.syncQuery.Get());
+        // D3D11 事件查询：GPU 未完成时 GetData 返回 S_FALSE（≠ S_OK）。
+        // 必须等待 S_OK 且 done==TRUE 才能读回，否则 CopyResource 读到
+        // 未完成计算的输出纹理 -> 每帧黑屏。
         BOOL done = FALSE;
-        while (ctx->GetData(d.syncQuery.Get(), &done, sizeof(done), 0) == S_OK
-            && !done) {
-            // 忙等 GPU 完成（自检/基准需要真实计时）
+        for (;;) {
+            HRESULT hq = ctx->GetData(d.syncQuery.Get(), &done, sizeof(done), 0);
+            if (hq == S_OK && done) break;
+            if (FAILED(hq)) break;   // 设备错误：放弃等待，避免死循环
+            Sleep(0);                // 让出 CPU，避免忙等占满核心
         }
     }
     QueryPerformanceCounter(&t1);
@@ -445,7 +453,7 @@ bool D3D11SuperResolution::upscale(
     ID3D11ShaderResourceView* nullSrv[] = { nullptr };
     ctx->CSSetShaderResources(0, 1, nullSrv);
 
-    // 读回
+    // 读回（staging 与输出同尺寸，均为目标窗口区域）
     ctx->CopyResource(d.stagingOut.Get(), d.texOut.Get());
 
     D3D11_MAPPED_SUBRESOURCE rd;

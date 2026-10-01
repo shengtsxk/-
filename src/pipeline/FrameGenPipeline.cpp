@@ -550,6 +550,19 @@ namespace Lingjing {
             sample.aiRepairMs = genResult.aiMs;
             sample.presentMs = presentMs;
             sample.totalMs = totalMs;
+            // 源帧率 = 捕获帧时间戳间隔；输出帧率 = 管线吞吐（首帧为 0）
+            {
+                float srcFps = 0.0f;
+                if (hasPrevFrame_ && currentFrame.timestampNs > prevFrame_.timestampNs) {
+                    const auto deltaNs = currentFrame.timestampNs -
+                        prevFrame_.timestampNs;
+                    if (deltaNs > 0) {
+                        srcFps = 1e9f / static_cast<float>(deltaNs);
+                    }
+                }
+                sample.sourceFps = srcFps;
+                sample.outputFps = (totalMs > 0.0f) ? 1000.0f / totalMs : 0.0f;
+            }
 
             performanceMonitor_->recordSample(sample);
         }
