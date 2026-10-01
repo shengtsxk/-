@@ -1,0 +1,92 @@
+{
+  "version": "1.0.0",
+  "general": {
+    "theme": "dark",
+    "language": "zh-CN",
+    "start_with_windows": false,
+    "minimize_to_tray": true,
+    "check_updates": true,
+    "auto_start_engine": false
+  },
+  "logging": {
+    "level": "info",
+    "console": true,
+    "file": true,
+    "max_size_mb": 16,
+    "backup_count": 5
+  },
+  "gpu": {
+    "preferred_device": "auto",
+    "enable_nvidia": true,
+    "enable_intel": true,
+    "enable_tensor_cores": true,
+    "enable_xmx": true,
+    "enable_hw_flow": true,
+    "enable_cuda_graph": true
+  },
+  "framegen": {
+    "enabled": true,
+    "multiplier": 2,
+    "quality": "balanced",
+    "occlusion_aware": true,
+    "occlusion_threshold": 0.55,
+    "de_jelly": true,
+    "de_jelly_strength": 0.6,
+    "ai_repair": true,
+    "temporal_smoothing": true,
+    "temporal_weight": 0.15,
+    "adaptive_quality": true,
+    "max_frame_time_ms": 8.0,
+    "latency_target": "balanced"
+  },
+  "huaizhu": {
+    "enabled": true,
+    "warmup_frames": 30,
+    "convergence_threshold": 0.95,
+    "depth_stride": 2,
+    "default_fov": 78.0,
+    "enable_geometry_inversion": true,
+    "enable_learned_seed": true
+  },
+  "capture": {
+    "backend": "auto",
+    "capture_cursor": false,
+    "fps_limit": 0,
+    "ring_buffer_size": 3,
+    "allow_format_conversion": true,
+    "use_shared_texture": true
+  },
+  "learning": {
+    "enabled": true,
+    "auto_save": true,
+    "auto_save_interval_seconds": 300,
+    "enable_transfer": true,
+    "enable_active": true,
+    "crowd_learning": false
+  },
+  "ai": {
+    "model_path": "",
+    "device": "auto",
+    "precision": "fp16",
+    "enable_engine_cache": true,
+    "workspace_size_mb": 512,
+    "enable_dynamic_shape": false
+  },
+  "ui": {
+    "opacity": 1.0,
+    "always_on_top": false,
+    "show_performance": true,
+    "wallpaper_enabled": true,
+    "wallpaper_path": "",
+    "ripple_enabled": true,
+    "ripple_strength": 0.8,
+    "window_width": 1440,
+    "window_height": 900
+  },
+  "hotkeys": {
+    "toggle_framegen": "Ctrl+Shift+F",
+    "show_panel": "Ctrl+Shift+P",
+    "screenshot": "Ctrl+Shift+S",
+    "emergency_stop": "Ctrl+Shift+Esc"
+  }
+}

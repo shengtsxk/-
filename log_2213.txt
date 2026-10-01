@@ -1,0 +1,30 @@
+﻿[2026-09-25 22:13:08.130] [INFO ] [T11204] ========================================
+[2026-09-25 22:13:08.130] [INFO ] [T11204] 灵境 Lingjing v1.0.0
+[2026-09-25 22:13:08.130] [INFO ] [T11204] 通用游戏帧生成软件
+[2026-09-25 22:13:08.130] [INFO ] [T11204] ========================================
+[2026-09-25 22:13:08.138] [INFO ] [T11204] GPU detected: Intel(R) UHD Graphics 770 (128 MB)
+[2026-09-25 22:13:08.138] [INFO ] [T11204] GPU detected: Intel(R) UHD Graphics 770 (128 MB)
+[2026-09-25 22:13:08.138] [INFO ] [T11204] 检测到 2 个 GPU:
+[2026-09-25 22:13:08.138] [INFO ] [T11204]   - Intel(R) UHD Graphics 770 (128 MB)
+[2026-09-25 22:13:08.138] [INFO ] [T11204]   - Intel(R) UHD Graphics 770 (128 MB)
+[2026-09-25 22:13:08.139] [INFO ] [T11204] ================ 自检模式 ================
+[2026-09-25 22:13:08.149] [INFO ] [T11204] Selftest target: LingjingSelftestSourceWnd (hwnd=0x00000000007A050E)
+[2026-09-25 22:13:08.149] [INFO ] [T11204] Pipeline state: Uninitialized -> Initializing
+[2026-09-25 22:13:08.149] [INFO ] [T11204] GPU detected: Intel(R) UHD Graphics 770 (128 MB)
+[2026-09-25 22:13:08.149] [INFO ] [T11204] GPU detected: Intel(R) UHD Graphics 770 (128 MB)
+[2026-09-25 22:13:08.149] [INFO ] [T11204] GPU selected: Intel(R) UHD Graphics 770 (score=-149.0)
+[2026-09-25 22:13:08.149] [INFO ] [T11204] Pipeline GPU: Intel(R) UHD Graphics 770 (128 MB)
+[2026-09-25 22:13:08.149] [WARN ] [T11204] GPU context initialization failed, continuing in CPU mode
+[2026-09-25 22:13:08.181] [INFO ] [T11204] D3D11 device created, feature level: 0xC100
+[2026-09-25 22:13:08.267] [INFO ] [T11204] WGC border disabled
+[2026-09-25 22:13:08.268] [INFO ] [T11204] WGCCapture initialized: 624x472
+[2026-09-25 22:13:08.268] [ERROR] [T11204] HuaiZhu: invalid GPU context
+[2026-09-25 22:13:08.268] [WARN ] [T11204] Flow engine initialization failed, continuing without
+[2026-09-25 22:13:08.269] [INFO ] [T11204] ModelRegistry: 3 models found
+[2026-09-25 22:13:08.269] [ERROR] [T11204] OcclusionHandler: invalid GPU context
+[2026-09-25 22:13:08.269] [WARN ] [T11204] Occlusion handler initialization failed, continuing without
+[2026-09-25 22:13:08.269] [INFO ] [T11204] [crash-check] after occlusion reset
+[2026-09-25 22:13:08.269] [ERROR] [T11204] FrameBlender: invalid GPU context
+[2026-09-25 22:13:08.269] [WARN ] [T11204] Frame blender initialization failed, continuing without
+[2026-09-25 22:13:08.269] [INFO ] [T11204] [crash-check] before blender reset
+[2026-09-25 22:13:08.269] [INFO ] [T11204] [crash-check] after blender reset

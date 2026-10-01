@@ -1,0 +1,20 @@
+﻿[2026-09-25 22:27:57.336] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:57.367] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:57.408] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:57.462] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:57.526] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:57.551] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:57.604] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:57.630] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:57.671] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:57.744] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:57.805] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:57.832] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:57.884] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:57.925] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:57.979] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:58.050] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:58.103] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:58.136] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:58.172] [ERROR] [T21560] Pipeline frame exception: resource deadlock would occur: resource deadlock would occur
+[2026-09-25 22:27:58.202] [INFO ] [T21304] Selftest complete

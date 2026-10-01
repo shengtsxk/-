@@ -1,0 +1,16 @@
+﻿Direct SystemTray.NormalButton count: 3
+  NormalButton: '显示隐藏的图标'
+  NormalButton: '360安全卫士 - 安全防护中心完全开启'
+  NormalButton: '任务栏输入指示 英语模式
+
+单击右键以查看更多选项'
+Top windows:
+  '系统托盘溢出窗口。' [TopLevelWindowForOverflowXamlIsland]
+  '' [Shell_TrayWnd]
+  'MuMu安卓设备' [ShellWindow]
+  '编译D盘lingjing文件夹并自动修复错误 - 豆包' [Chrome_WidgetWin_1]
+  '华夏时隙音频系统 - DeepSeek 和另外 1 个页面 - 个人 - Microsoft​ Edge' [Chrome_WidgetWin_1]
+  'Watt Toolkit' [Avalonia-0533e6cb-0842-4635-8948-a0fb824ae12c]
+  '' [Chrome_WidgetWin_1]
+  'MuMu模拟器' [PlayerListWidgetOverlay]
+  'Program Manager' [Progman]

@@ -1,0 +1,25 @@
+﻿[2026-09-25 22:31:11.820] [INFO ] [T19748] Presenter initialized: mode=0, queueSize=3, output=622x433
+[2026-09-25 22:31:11.820] [INFO ] [T19748] Pipeline state: Initializing -> Ready
+[2026-09-25 22:31:11.820] [INFO ] [T19748] FrameGenPipeline initialized successfully
+[2026-09-25 22:31:11.822] [INFO ] [T19748] WGCCapture started
+[2026-09-25 22:31:11.822] [INFO ] [T19748] PerformanceMonitor started
+[2026-09-25 22:31:11.822] [INFO ] [T19748] Pipeline state: Ready -> Running
+[2026-09-25 22:31:11.822] [INFO ] [T19748] FrameGenPipeline started
+[2026-09-25 22:31:11.822] [INFO ] [T19748] Selftest: running 5 seconds...
+[2026-09-25 22:31:11.823] [INFO ] [T5484] Pipeline thread started
+[2026-09-25 22:31:13.712] [INFO ] [T5484] Dynamic quality: 3 -> 1 (avg=10.56ms, p95=30.08ms, target=8.00ms)
+[2026-09-25 22:31:16.834] [INFO ] [T19748] Pipeline state: Running -> Stopping
+[2026-09-25 22:31:16.840] [INFO ] [T19748] WGCCapture stopped
+[2026-09-25 22:31:16.850] [INFO ] [T5484] Pipeline thread stopped
+[2026-09-25 22:31:16.851] [INFO ] [T19748] Pipeline state: Stopping -> Ready
+[2026-09-25 22:31:16.851] [INFO ] [T19748] FrameGenPipeline stopped
+[2026-09-25 22:31:16.851] [INFO ] [T19748] Pipeline state: Ready -> Stopping
+[2026-09-25 22:31:16.851] [INFO ] [T19748] Pipeline state: Stopping -> Ready
+[2026-09-25 22:31:16.851] [INFO ] [T19748] FrameGenPipeline stopped
+[2026-09-25 22:31:16.853] [INFO ] [T19748] WGCCapture shutdown
+[2026-09-25 22:31:16.853] [INFO ] [T19748] WGCCapture shutdown
+[2026-09-25 22:31:16.853] [INFO ] [T19748] Pipeline state: Ready -> Uninitialized
+[2026-09-25 22:31:16.853] [INFO ] [T19748] FrameGenPipeline shutdown complete
+[2026-09-25 22:31:16.872] [INFO ] [T19748] Selftest complete
+[2026-09-25 22:31:16.872] [INFO ] [T19748] FrameGenPipeline shutdown complete
+

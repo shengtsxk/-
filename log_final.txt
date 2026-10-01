@@ -1,0 +1,30 @@
+﻿[2026-09-25 22:30:09.076] [INFO ] [T19524] [pf] before grabFrame
+[2026-09-25 22:30:09.100] [INFO ] [T19524] [pf] grabFrame timeout
+[2026-09-25 22:30:09.115] [INFO ] [T19524] [pf] before grabFrame
+[2026-09-25 22:30:09.115] [INFO ] [T19524] [pf] after grabFrame ok
+[2026-09-25 22:30:09.115] [INFO ] [T19524] [pf] before generateFrames
+[2026-09-25 22:30:09.115] [INFO ] [T19524] [pf] after generateFrames
+[2026-09-25 22:30:09.115] [INFO ] [T19524] [pf] before present
+[2026-09-25 22:30:09.116] [INFO ] [T19524] [pr] before GetDIBits w=622 h=433 buf=1077304
+[2026-09-25 22:30:09.116] [INFO ] [T19524] [pr] after GetDIBits
+[2026-09-25 22:30:09.117] [INFO ] [T19524] [pr] before StretchDIBits
+[2026-09-25 22:30:09.118] [INFO ] [T19524] [pf] after present
+[2026-09-25 22:30:09.118] [INFO ] [T19524] [pf] before grabFrame
+[2026-09-25 22:30:09.146] [INFO ] [T19524] [pf] grabFrame timeout
+[2026-09-25 22:30:09.162] [INFO ] [T19524] [pf] before grabFrame
+[2026-09-25 22:30:09.162] [INFO ] [T19524] [pf] after grabFrame ok
+[2026-09-25 22:30:09.162] [INFO ] [T19524] [pf] before generateFrames
+[2026-09-25 22:30:09.162] [INFO ] [T19524] [pf] after generateFrames
+[2026-09-25 22:30:09.162] [INFO ] [T19524] [pf] before present
+[2026-09-25 22:30:09.163] [INFO ] [T19524] [pr] before GetDIBits w=622 h=433 buf=1077304
+[2026-09-25 22:30:09.163] [INFO ] [T19524] [pr] after GetDIBits
+[2026-09-25 22:30:09.164] [INFO ] [T19524] [pr] before StretchDIBits
+[2026-09-25 22:30:09.164] [INFO ] [T19524] [pf] after present
+[2026-09-25 22:30:09.164] [INFO ] [T19524] [pf] before grabFrame
+[2026-09-25 22:30:09.177] [INFO ] [T22332] Pipeline state: Running -> Stopping
+[2026-09-25 22:30:09.193] [INFO ] [T19524] [pf] grabFrame timeout
+[2026-09-25 22:30:09.209] [INFO ] [T22332] Pipeline state: Stopping -> Ready
+[2026-09-25 22:30:09.209] [INFO ] [T22332] Pipeline state: Ready -> Stopping
+[2026-09-25 22:30:09.209] [INFO ] [T22332] Pipeline state: Stopping -> Ready
+[2026-09-25 22:30:09.211] [INFO ] [T22332] Pipeline state: Ready -> Uninitialized
+[2026-09-25 22:30:09.228] [INFO ] [T22332] Selftest complete

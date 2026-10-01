@@ -1,0 +1,107 @@
+﻿
+  显示构建信息
+  Lingjing v1.2.0 (Windows)
+  CUDA: 
+  TensorRT: 
+  SYCL: 
+  OpenVINO: 
+  1>Automatic MOC and UIC for target Lingjing
+  cmake_pch.cxx
+  main.cpp
+  Logger.cpp
+  Timer.cpp
+  Config.cpp
+  UpdateChecker.cpp
+  Error.cpp
+  DeviceCaps.cpp
+  PathUtils.cpp
+  StringUtils.cpp
+  Json.cpp
+  MemoryPool.cpp
+  WGCCapture.cpp
+  DXGICapture.cpp
+  WindowEnumerator.cpp
+  CaptureSelector.cpp
+  HookedCapture.cpp
+  CursorRenderer.cpp
+  GpuSelector.cpp
+  FlowEngineFactory.cpp
+  HuaiZhuEngine.cpp
+  TimeGeometryMemory.cpp
+  MultiCueProjection.cpp
+  Coherent3DFlow.cpp
+  AdaptiveConfidenceField.cpp
+  ModelLoader.cpp
+  ModelValidator.cpp
+  AIRepairFactory.cpp
+  FrameBlender.cpp
+  OcclusionHandler.cpp
+  Presenter.cpp
+  MultiFrameGenerator.cpp
+  D3D11FrameInterpolator.cpp
+  FrameGenPipeline.cpp
+  LatencyController.cpp
+  SceneDetector.cpp
+  PerformanceMonitor.cpp
+  GameFingerprint.cpp
+  LearningDatabase.cpp
+  OnlineLearner.cpp
+  TransferLearning.cpp
+  ActiveLearning.cpp
+  LearningManager.cpp
+  LearningViewModel.cpp
+  MainWindow.cpp
+  ControlPanel.cpp
+  GameListWidget.cpp
+  PerformanceGraphWidget.cpp
+D:\lingjing\src\flow\AdaptiveConfidenceField.cpp(240,18): warning C4189: “W”: 局部变量已初始化但不引用 [D:\lingjing\build\Lingjing.vcxproj]
+  SettingsDialog.cpp
+  RippleWidget.cpp
+  (编译源文件“../src/flow/AdaptiveConfidenceField.cpp”)
+  
+D:\lingjing\src\flow\AdaptiveConfidenceField.cpp(241,18): warning C4189: “H”: 局部变量已初始化但不引用 [D:\lingjing\build\Lingjing.vcxproj]
+  (编译源文件“../src/flow/AdaptiveConfidenceField.cpp”)
+  
+D:\lingjing\src\pipeline\FrameBlender.cpp(244,18): warning C4189: “W”: 局部变量已初始化但不引用 [D:\lingjing\build\Lingjing.vcxproj]
+  (编译源文件“../src/pipeline/FrameBlender.cpp”)
+  
+D:\lingjing\src\pipeline\FrameBlender.cpp(245,18): warning C4189: “H”: 局部变量已初始化但不引用 [D:\lingjing\build\Lingjing.vcxproj]
+  (编译源文件“../src/pipeline/FrameBlender.cpp”)
+  
+D:\lingjing\src\pipeline\Presenter.cpp(10,9): warning C4005: “WIN32_LEAN_AND_MEAN”: 宏重定义 [D:\lingjing\build\Lingjing.vcxproj]
+  (编译源文件“../src/pipeline/Presenter.cpp”)
+      D:\lingjing\src\pipeline\Presenter.cpp(10,9):
+      之前在命令行上声明的“WIN32_LEAN_AND_MEAN”
+  
+D:\lingjing\src\learning\LearningViewModel.cpp(86,22): warning C4189: “learner”: 局部变量已初始化但不引用 [D:\lingjing\build\Lingjing.vcxproj]
+  (编译源文件“../src/learning/LearningViewModel.cpp”)
+  
+  WallpaperEngine.cpp
+  TrayIcon.cpp
+  Theme.cpp
+  mocs_compilation_Release.cpp
+D:\lingjing\src\capture\WindowEnumerator.cpp(343,14): warning C4189: “exStyle”: 局部变量已初始化但不引用 [D:\lingjing\build\Lingjing.vcxproj]
+  (编译源文件“../src/capture/WindowEnumerator.cpp”)
+  
+D:\lingjing\src\pipeline\FrameGenPipeline.cpp(477,15): warning C4189: “frameGenMs”: 局部变量已初始化但不引用 [D:\lingjing\build\Lingjing.vcxproj]
+  (编译源文件“../src/pipeline/FrameGenPipeline.cpp”)
+  
+D:\lingjing\src\pipeline\FrameGenPipeline.cpp(484,25): warning C4189: “now”: 局部变量已初始化但不引用 [D:\lingjing\build\Lingjing.vcxproj]
+  (编译源文件“../src/pipeline/FrameGenPipeline.cpp”)
+  
+D:\lingjing\src\ui\MainWindow.cpp(554,1): warning C4702: 无法访问的代码 [D:\lingjing\build\Lingjing.vcxproj]
+D:\lingjing\src\capture\WGCCapture.cpp(227,29): warning C4458: “winrtDevice”的声明隐藏了类成员 [D:\lingjing\build\Lingjing.vcxproj]
+  (编译源文件“../src/capture/WGCCapture.cpp”)
+      D:\lingjing\src\capture\WGCCapture.cpp(42,25):
+      参见“Lingjing::WGCCapture::Impl::winrtDevice”的声明
+  
+D:\lingjing\src\capture\WGCCapture.cpp(488,21): warning C4456: “hr”的声明隐藏了上一个本地声明 [D:\lingjing\build\Lingjing.vcxproj]
+  (编译源文件“../src/capture/WGCCapture.cpp”)
+      D:\lingjing\src\capture\WGCCapture.cpp(405,17):
+      参见“hr”的声明
+  
+LIBCMT.lib(initializers.obj) : warning LNK4098: 默认库“msvcrt.lib”与其他库的使用冲突；请使用 /NODEFAULTLIB:library [D:\lingjing\build\Lingjing.vcxproj]
+LINK : warning LNK4217: 符号“__p___argc”(在“ libucrt.lib(argv_data.obj)”中定义)已由“Qt6EntryPoint.lib(qtentrypoint_win.cpp.obj)”(函数“"int __cdecl qtEntryPoint(void)" (?qtEntryPoint@@YAHXZ)”中)导入 [D:\lingjing\build\Lingjing.vcxproj]
+LINK : warning LNK4217: 符号“__p___argv”(在“ libucrt.lib(argv_data.obj)”中定义)已由“Qt6EntryPoint.lib(qtentrypoint_win.cpp.obj)”(函数“"int __cdecl qtEntryPoint(void)" (?qtEntryPoint@@YAHXZ)”中)导入 [D:\lingjing\build\Lingjing.vcxproj]
+  Lingjing.vcxproj -> D:\lingjing\build\bin\Release\Lingjing.exe
+  拷贝 assets 目录	拷贝 models 目录	拷贝 docs 目录

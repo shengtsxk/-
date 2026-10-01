@@ -1,0 +1,20 @@
+﻿[2026-09-25 22:15:36.108] [INFO ] [T5840] WGC callback #1
+[2026-09-25 22:17:07.822] [INFO ] [T11404] WGC callback #1
+[2026-09-25 22:17:50.627] [INFO ] [T9636] WGC callback #1
+[2026-09-25 22:18:56.275] [INFO ] [T10908] WGC callback #1
+[2026-09-25 22:18:57.629] [INFO ] [T10908] WGC callback #31
+[2026-09-25 22:18:59.046] [INFO ] [T10908] WGC callback #61
+[2026-09-25 22:19:00.442] [INFO ] [T10908] WGC callback #91
+[2026-09-25 22:19:01.300] [INFO ] [T23144] Selftest complete
+[2026-09-25 22:19:44.311] [INFO ] [T22820] WGC callback #1
+[2026-09-25 22:19:45.545] [INFO ] [T22820] WGC callback #31
+[2026-09-25 22:19:46.936] [INFO ] [T22820] WGC callback #61
+[2026-09-25 22:19:48.372] [INFO ] [T22820] WGC callback #91
+[2026-09-25 22:19:49.350] [INFO ] [T15232] Selftest complete
+[2026-09-25 22:20:08.004] [INFO ] [T21628] WGC callback #1
+[2026-09-25 22:21:48.633] [INFO ] [T6956] WGC callback #1
+[2026-09-25 22:21:48.633] [INFO ] [T6956] WGC step: before emit-check
+[2026-09-25 22:21:48.633] [INFO ] [T6956] WGC step: before GpuTexture
+[2026-09-25 22:21:48.633] [INFO ] [T6956] WGC step: before ring
+[2026-09-25 22:21:48.633] [INFO ] [T6956] WGC step: after notify
+[2026-09-25 22:21:48.633] [INFO ] [T6956] WGC step: before updateFps

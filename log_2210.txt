@@ -1,0 +1,40 @@
+﻿[2026-09-25 22:10:33.004] [INFO ] [T24368] ========================================
+[2026-09-25 22:10:33.004] [INFO ] [T24368] 灵境 Lingjing v1.0.0
+[2026-09-25 22:10:33.004] [INFO ] [T24368] 通用游戏帧生成软件
+[2026-09-25 22:10:33.004] [INFO ] [T24368] ========================================
+[2026-09-25 22:10:33.011] [INFO ] [T24368] GPU detected: Intel(R) UHD Graphics 770 (128 MB)
+[2026-09-25 22:10:33.011] [INFO ] [T24368] GPU detected: Intel(R) UHD Graphics 770 (128 MB)
+[2026-09-25 22:10:33.011] [INFO ] [T24368] 检测到 2 个 GPU:
+[2026-09-25 22:10:33.011] [INFO ] [T24368]   - Intel(R) UHD Graphics 770 (128 MB)
+[2026-09-25 22:10:33.011] [INFO ] [T24368]   - Intel(R) UHD Graphics 770 (128 MB)
+[2026-09-25 22:10:33.011] [INFO ] [T24368] ================ 自检模式 ================
+[2026-09-25 22:10:33.018] [INFO ] [T24368] Selftest target: LingjingSelftestSourceWnd (hwnd=0x00000000002503CA)
+[2026-09-25 22:10:33.018] [INFO ] [T24368] Pipeline state: Uninitialized -> Initializing
+[2026-09-25 22:10:33.019] [INFO ] [T24368] GPU detected: Intel(R) UHD Graphics 770 (128 MB)
+[2026-09-25 22:10:33.019] [INFO ] [T24368] GPU detected: Intel(R) UHD Graphics 770 (128 MB)
+[2026-09-25 22:10:33.019] [INFO ] [T24368] GPU selected: Intel(R) UHD Graphics 770 (score=-149.0)
+[2026-09-25 22:10:33.019] [INFO ] [T24368] Pipeline GPU: Intel(R) UHD Graphics 770 (128 MB)
+[2026-09-25 22:10:33.019] [WARN ] [T24368] GPU context initialization failed, continuing in CPU mode
+[2026-09-25 22:10:33.044] [INFO ] [T24368] D3D11 device created, feature level: 0xC100
+[2026-09-25 22:10:33.107] [INFO ] [T24368] WGC border disabled
+[2026-09-25 22:10:33.108] [INFO ] [T24368] WGCCapture initialized: 624x472
+[2026-09-25 22:10:33.108] [ERROR] [T24368] HuaiZhu: invalid GPU context
+[2026-09-25 22:10:33.108] [WARN ] [T24368] Flow engine initialization failed, continuing without
+[2026-09-25 22:10:33.108] [INFO ] [T24368] ModelRegistry: 3 models found
+[2026-09-25 22:10:33.108] [ERROR] [T24368] OcclusionHandler: invalid GPU context
+[2026-09-25 22:10:33.108] [WARN ] [T24368] Occlusion handler initialization failed, continuing without
+[2026-09-25 22:10:33.109] [INFO ] [T24368] [crash-check] after occlusion reset
+[2026-09-25 22:10:33.109] [ERROR] [T24368] FrameBlender: invalid GPU context
+[2026-09-25 22:10:33.109] [WARN ] [T24368] Frame blender initialization failed, continuing without
+[2026-09-25 22:10:33.109] [INFO ] [T24368] [crash-check] before blender reset
+[2026-09-25 22:10:33.109] [INFO ] [T24368] [crash-check] after blender reset
+[2026-09-25 22:10:33.109] [INFO ] [T24368] [init-step] after multiFrameGenerator init
+[2026-09-25 22:10:33.109] [ERROR] [T24368] SceneDetector: invalid GPU context
+[2026-09-25 22:10:33.109] [WARN ] [T24368] Scene detector initialization failed
+[2026-09-25 22:10:33.109] [INFO ] [T24368] [init-step] after sceneDetector
+[2026-09-25 22:10:33.109] [INFO ] [T24368] Latency target: Quality (8ms) (8.0 ms)
+[2026-09-25 22:10:33.109] [INFO ] [T24368] [init-step] after perfMonitor
+[2026-09-25 22:10:33.116] [INFO ] [T24368] Presenter: output window created (622x433)
+[2026-09-25 22:10:33.117] [INFO ] [T24368] Presenter initialized: mode=0, queueSize=3, output=622x433
+[2026-09-25 22:10:33.117] [INFO ] [T24368] Pipeline state: Initializing -> Ready
+[2026-09-25 22:10:33.117] [INFO ] [T24368] FrameGenPipeline initialized successfully

@@ -1,0 +1,4 @@
+﻿  (编译源文件“../src/capture/WGCCapture.cpp”)
+      D:\lingjing\src\capture\WGCCapture.cpp(42,25):
+      参见“Lingjing::WGCCapture::Impl::winrtDevice”的声明
+  

@@ -1,0 +1,42 @@
+﻿-- Selecting Windows SDK version 10.0.26100.0 to target Windows 10.0.26200.
+-- ===========================================
+-- 灵境 Lingjing v1.2.0
+-- 平台: Windows
+-- 编译器: MSVC 19.51.36257.0
+-- ===========================================
+-- Qt6: 6.11.2
+-- 
+-- ===========================================
+-- 构建配置总结
+-- ===========================================
+-- 项目:        Lingjing v1.2.0
+-- 平台:        Windows
+-- 构建类型:    
+-- C++ 标准:    C++20
+-- LTO:         OFF
+-- 
+-- 后端:
+--   NVIDIA:    OFF
+--   CUDA:      
+--   TensorRT:  
+--   NVOFA:     
+--   NVML:      
+--   Intel:     OFF
+--   SYCL:      
+--   OpenVINO:  
+-- 
+-- 功能:
+--   UI:        ON
+--   Qt6:       1
+--   AI:        ON
+--   学习:      ON
+--   瞬:        OFF
+--   淮竹:      ON
+-- 
+-- 源文件:      src/main.cpp;src/core/Logger.cpp;src/core/Timer.cpp;src/core/Config.cpp;src/core/UpdateChecker.cpp;src/core/Error.cpp;src/core/DeviceCaps.cpp;src/core/PathUtils.cpp;src/core/StringUtils.cpp;src/core/Json.cpp;src/core/MemoryPool.cpp;src/capture/WGCCapture.cpp;src/capture/DXGICapture.cpp;src/capture/WindowEnumerator.cpp;src/capture/CaptureSelector.cpp;src/capture/HookedCapture.cpp;src/capture/CursorRenderer.cpp;src/gup/GpuSelector.cpp;src/flow/FlowEngineFactory.cpp;src/flow/HuaiZhuEngine.cpp;src/flow/TimeGeometryMemory.cpp;src/flow/MultiCueProjection.cpp;src/flow/Coherent3DFlow.cpp;src/flow/AdaptiveConfidenceField.cpp;src/ai/ModelLoader.cpp;src/ai/ModelValidator.cpp;src/ai/AIRepairFactory.cpp;src/pipeline/FrameBlender.cpp;src/pipeline/OcclusionHandler.cpp;src/pipeline/Presenter.cpp;src/pipeline/MultiFrameGenerator.cpp;src/pipeline/D3D11FrameInterpolator.cpp;src/pipeline/FrameGenPipeline.cpp;src/pipeline/LatencyController.cpp;src/pipeline/SceneDetector.cpp;src/pipeline/PerformanceMonitor.cpp;src/learning/GameFingerprint.cpp;src/learning/LearningDatabase.cpp;src/learning/OnlineLearner.cpp;src/learning/TransferLearning.cpp;src/learning/ActiveLearning.cpp;src/learning/LearningManager.cpp;src/learning/LearningViewModel.cpp;src/ui/MainWindow.cpp;src/ui/ControlPanel.cpp;src/ui/GameListWidget.cpp;src/ui/PerformanceGraphWidget.cpp;src/ui/SettingsDialog.cpp;src/ui/RippleWidget.cpp;src/ui/WallpaperEngine.cpp;src/ui/TrayIcon.cpp;src/ui/Theme.cpp
+-- 输出目录:    D:/lingjing/build/bin
+-- ===========================================
+-- 
+-- Configuring done (0.7s)
+-- Generating done (0.8s)
+-- Build files have been written to: D:/lingjing/build

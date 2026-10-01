@@ -1,0 +1,40 @@
+﻿[2026-09-25 22:15:37.086] [INFO ] [T8708] [pf] before present
+[2026-09-25 22:15:37.089] [INFO ] [T8708] [pf] after present
+[2026-09-25 22:15:37.089] [INFO ] [T8708] [pf] before grabFrame
+[2026-09-25 22:15:37.120] [INFO ] [T8708] [pf] grabFrame timeout
+[2026-09-25 22:15:37.135] [INFO ] [T8708] [pf] before grabFrame
+[2026-09-25 22:15:37.149] [INFO ] [T8708] [pf] after grabFrame ok
+[2026-09-25 22:15:37.149] [INFO ] [T8708] [pf] before generateFrames
+[2026-09-25 22:15:37.149] [INFO ] [T8708] [pf] after generateFrames
+[2026-09-25 22:15:37.149] [INFO ] [T8708] [pf] before present
+[2026-09-25 22:15:37.152] [INFO ] [T8708] [pf] after present
+[2026-09-25 22:15:37.152] [INFO ] [T8708] [pf] before grabFrame
+[2026-09-25 22:15:37.182] [INFO ] [T8708] [pf] grabFrame timeout
+[2026-09-25 22:15:37.198] [INFO ] [T8708] [pf] before grabFrame
+[2026-09-25 22:15:37.198] [INFO ] [T8708] [pf] after grabFrame ok
+[2026-09-25 22:15:37.198] [INFO ] [T8708] [pf] before generateFrames
+[2026-09-25 22:15:37.198] [INFO ] [T8708] [pf] after generateFrames
+[2026-09-25 22:15:37.198] [INFO ] [T8708] [pf] before present
+[2026-09-25 22:15:37.203] [INFO ] [T8708] [pf] after present
+[2026-09-25 22:15:37.203] [INFO ] [T8708] [pf] before grabFrame
+[2026-09-25 22:15:37.229] [INFO ] [T8708] [pf] grabFrame timeout
+[2026-09-25 22:15:37.244] [INFO ] [T8708] [pf] before grabFrame
+[2026-09-25 22:15:37.244] [INFO ] [T8708] [pf] after grabFrame ok
+[2026-09-25 22:15:37.244] [INFO ] [T8708] [pf] before generateFrames
+[2026-09-25 22:15:37.244] [INFO ] [T8708] [pf] after generateFrames
+[2026-09-25 22:15:37.244] [INFO ] [T8708] [pf] before present
+[2026-09-25 22:15:37.248] [INFO ] [T8708] [pf] after present
+[2026-09-25 22:15:37.249] [INFO ] [T8708] [pf] before grabFrame
+[2026-09-25 22:15:37.274] [INFO ] [T8708] [pf] after grabFrame ok
+[2026-09-25 22:15:37.274] [INFO ] [T8708] [pf] before generateFrames
+[2026-09-25 22:15:37.274] [INFO ] [T8708] [pf] after generateFrames
+[2026-09-25 22:15:37.274] [INFO ] [T8708] [pf] before present
+[2026-09-25 22:15:37.277] [INFO ] [T8708] [pf] after present
+[2026-09-25 22:15:37.277] [INFO ] [T8708] [pf] before grabFrame
+[2026-09-25 22:15:37.307] [INFO ] [T8708] [pf] grabFrame timeout
+[2026-09-25 22:15:37.322] [INFO ] [T8708] [pf] before grabFrame
+[2026-09-25 22:15:37.336] [INFO ] [T8708] [pf] after grabFrame ok
+[2026-09-25 22:15:37.336] [INFO ] [T8708] [pf] before generateFrames
+[2026-09-25 22:15:37.336] [INFO ] [T8708] [pf] after generateFrames
+[2026-09-25 22:15:37.336] [INFO ] [T8708] [pf] before present
+[2026-09-25 22:15:37.339] [INFO ] [T8708] [pf] after present

@@ -1,0 +1,3 @@
+﻿[2026-09-25 22:15:35.986] [INFO ] [T23052] Pipeline state: Uninitialized -> Initializing
+[2026-09-25 22:15:36.100] [INFO ] [T23052] Pipeline state: Initializing -> Ready
+[2026-09-25 22:15:36.100] [INFO ] [T23052] Pipeline state: Ready -> Running

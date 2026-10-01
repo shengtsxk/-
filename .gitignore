@@ -1,0 +1,8 @@
+build/
+package/
+release-repo/
+*.user
+CMakeCache.txt
+*.suo
+*.VC.db
+.vs/

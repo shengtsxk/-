@@ -1,0 +1,25 @@
+﻿[2026-09-25 22:17:51.833] [INFO ] [T13796] [pf] after present
+[2026-09-25 22:17:51.833] [INFO ] [T13796] [pf] before grabFrame
+[2026-09-25 22:17:51.861] [INFO ] [T13796] [pf] grabFrame timeout
+[2026-09-25 22:17:51.877] [INFO ] [T13796] [pf] before grabFrame
+[2026-09-25 22:17:51.877] [INFO ] [T13796] [pf] after grabFrame ok
+[2026-09-25 22:17:51.877] [INFO ] [T13796] [pf] before generateFrames
+[2026-09-25 22:17:51.877] [INFO ] [T13796] [pf] after generateFrames
+[2026-09-25 22:17:51.877] [INFO ] [T13796] [pf] before present
+[2026-09-25 22:17:51.877] [INFO ] [T13796] [pf] after present
+[2026-09-25 22:17:51.877] [INFO ] [T13796] [pf] before grabFrame
+[2026-09-25 22:17:51.908] [INFO ] [T13796] [pf] grabFrame timeout
+[2026-09-25 22:17:51.924] [INFO ] [T13796] [pf] before grabFrame
+[2026-09-25 22:17:51.937] [INFO ] [T13796] [pf] after grabFrame ok
+[2026-09-25 22:17:51.937] [INFO ] [T13796] [pf] before generateFrames
+[2026-09-25 22:17:51.937] [INFO ] [T13796] [pf] after generateFrames
+[2026-09-25 22:17:51.937] [INFO ] [T13796] [pf] before present
+[2026-09-25 22:17:51.937] [INFO ] [T13796] [pf] after present
+[2026-09-25 22:17:51.937] [INFO ] [T13796] [pf] before grabFrame
+[2026-09-25 22:17:51.956] [INFO ] [T13796] [pf] grabFrame timeout
+[2026-09-25 22:17:51.972] [INFO ] [T13796] [pf] before grabFrame
+[2026-09-25 22:17:51.976] [INFO ] [T13796] [pf] after grabFrame ok
+[2026-09-25 22:17:51.976] [INFO ] [T13796] [pf] before generateFrames
+[2026-09-25 22:17:51.976] [INFO ] [T13796] [pf] after generateFrames
+[2026-09-25 22:17:51.976] [INFO ] [T13796] [pf] before present
+[2026-09-25 22:17:51.976] [INFO ] [T13796] [pf] after present

@@ -1,0 +1,15 @@
+﻿[2026-09-25 22:13:13.288] [INFO ] [T11204] [sd] before presenter shutdown
+[2026-09-25 22:13:13.291] [INFO ] [T11204] [sd] after presenter reset
+[2026-09-25 22:13:13.291] [INFO ] [T11204] [sd] before blender shutdown
+[2026-09-25 22:13:13.291] [INFO ] [T11204] [sd] before capture shutdown
+[2026-09-25 22:13:13.291] [INFO ] [T11204] WGCCapture shutdown
+[2026-09-25 22:13:13.291] [INFO ] [T11204] WGCCapture shutdown
+[2026-09-25 22:13:13.291] [INFO ] [T11204] [sd] after capture reset
+[2026-09-25 22:13:13.291] [INFO ] [T11204] Pipeline state: Ready -> Uninitialized
+[2026-09-25 22:13:13.291] [INFO ] [T11204] FrameGenPipeline shutdown complete
+[2026-09-25 22:13:13.301] [INFO ] [T11204] Selftest complete
+[2026-09-25 22:13:13.301] [INFO ] [T11204] [sd] before mfg shutdown
+[2026-09-25 22:13:13.301] [INFO ] [T11204] [sd] before presenter shutdown
+[2026-09-25 22:13:13.301] [INFO ] [T11204] [sd] before blender shutdown
+[2026-09-25 22:13:13.301] [INFO ] [T11204] [sd] before capture shutdown
+[2026-09-25 22:13:13.301] [INFO ] [T11204] FrameGenPipeline shutdown complete

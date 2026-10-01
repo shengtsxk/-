@@ -1,0 +1,242 @@
+12款显卡 3A大作帧率与延迟对比汇编
+
+测试条件：低延迟技术开启 · 超分辨率开启 · 帧生成（DLSS FG / XeSS FG）关闭 | 汇编日期：2026-09-24
+
+⚠️ 重要声明：本报告为公开评测数据汇编，非本机实测。所有数据来自 TechPowerUp、ComputerBase、PCGH、3DNews 等公开硬件评测媒体。由于各评测的测试平台、驱动版本、游戏版本、画质预设存在差异，跨代横向对比仅供参考，不构成精确性能排名。严格满足"超分开+低延迟开+FG关+有延迟读数"全部条件的数据点极为稀缺，详见各表标注。
+📊 关键发现
+12
+目标显卡数量
+1
+完整满足全部条件的数据点
+~15
+部分满足（有帧率，缺延迟/低延迟）的数据点
+0
+NVIDIA显卡带延迟读数的数据点
+为什么数据缺口如此大？
+1. 帧率评测不测延迟：TechPowerUp、ComputerBase、TechSpot 等主流媒体的常规显卡评测只报平均帧和1% Low，不开启 Reflex / Xe Low Latency，也不测量端到端系统延迟。延迟测试通常只出现在电竞游戏（CS2、Valorant）和高端卡专题中。
+2. 低延迟技术上线时间晚：Intel Xe Low Latency（XeLL）直到2025年中才随驱动引入，Arc A系列（2022-2023）的所有评测均早于此时间，无法开启。NVIDIA Reflex 虽早存在，但3A单机评测中极少开启并报告。
+3. 帧生成污染数据：RTX 40/50系和Arc B系评测大量默认开启帧生成（FG/MFG），关闭FG的纯净帧率数据需要逐条甄别。
+4. 老卡被淘汰出测试阵容：RTX 2070（2018）在2023年赛博朋克2.0时代已不被主流横评纳入；A380定位入门，3A大作测试中极少出现。
+📋 数据完整度总览
+显卡	世代	赛博朋克2077	黑神话：悟空	延迟数据	综合评级
+RTX 5070	2025	无数据	有帧率	无	部分
+RTX 5060	2025	有帧率	无数据	无	部分
+RTX 4070	2023	有帧率	有帧率	无	部分
+RTX 4060	2023	有帧率	有帧率	无	部分
+RTX 3070	2020	有帧率	无数据	无	部分
+RTX 3060	2020	有帧率	无数据	无	部分
+RTX 2070	2018	无数据	无数据	无	缺失
+Arc B580	2024	★完整	有帧率	34ms ★	最完整
+Arc B570	2025	有帧率	有帧率	无	部分
+Arc A770	2022	有帧率	有帧率	无	部分
+Arc A750	2022	有帧率	有帧率	无	部分
+Arc A380	2022	无数据	无数据	无	缺失
+★完整
+超分开+低延迟开+FG关+有延迟
+有帧率
+超分开+FG关，但缺低延迟/延迟
+无数据
+无满足条件的公开数据
+🎮 赛博朋克2077（Cyberpunk 2077）
+⚠️ 画质预设不统一：下表数据来自不同评测，画质预设分为三类——光栅Ultra（无路径追踪）、RT-Ultra（光线追踪Ultra）、路径追踪Overdrive（最高光追）。三者负载差异巨大，不可直接跨预设比较帧率。请按预设分组阅读。
+分组A：光栅 Ultra + 超分 Quality（1080p / 1440p）
+显卡	分辨率	画质	超分	低延迟	FG	平均FPS	1% Low	延迟(ms)	来源
+Arc B580	1440p	Ultra（光栅）	XeSS Quality	XeLL 开 ★	关	64	—	34 ★	PCGH
+RTX 5060	1080p	Ultra（光栅）	DLSS Quality	未开	关	108.3	91.0	无	ComputerBase
+RTX 4060	1080p	Ultra（光栅）	DLSS Quality	未开	关	78.7	69.9	无	ComputerBase
+
+★ = 唯一完整满足"超分开+低延迟开+FG关+有延迟"全部条件的数据点。PCGH测得XeLL关闭时同配置延迟为69ms，开启后降至34ms，帧率几乎不变（65→64）。
+
+分组B：RT-Ultra（光追Ultra）+ 超分 Quality
+显卡	分辨率	画质	超分	低延迟	FG	平均FPS	1% Low	延迟(ms)	来源/平台
+RTX 4070	1080p	RT-Ultra	DLSS Quality	未开	关	87.1	71.9	无	CB / 7950X3D
+RTX 4070	1440p	RT-Ultra	DLSS Quality	未开	关	58.9	50.4	无	CB / 7950X3D
+RTX 3070	1080p	RT-Ultra	DLSS Quality	未开	关	55.0	42.4	无	CB / 7950X3D
+RTX 3070	1440p	RT-Ultra	DLSS Quality	未开	关	37.4	29.0	无	CB / 7950X3D
+RTX 5060	1080p	光追档	DLSS Quality	未开	关	65.2	51.3	无	CB / 9800X3D
+RTX 4060	1080p	光追档	DLSS Quality	未开	关	54.7	48.0	无	CB / 9800X3D
+RTX 3060	1080p	RT-Ultra	DLSS Quality	未开	关	44.3	38.7	无	CB / 7950X3D
+Arc A770	1080p	RT-Ultra	XeSS Quality	不可用*	关	40.8	35.6	无	CB / 7950X3D
+Arc A750	1080p	RT-Ultra	XeSS Quality	不可用*	关	36.8	31.7	无	CB / 7950X3D
+
+* Arc A系列评测时（2023年9月，驱动4826）Xe Low Latency尚未发布（2025年中才引入），故无法开启。CB = ComputerBase。RTX 3060/3070/A770/A750数据来自2023年9月PL专项（驱动537.42/4826，7950X3D）；RTX 5060/4060光追档来自2026年5月横评（9800X3D），游戏/驱动版本更新，不可与2023年数据精确对比。
+
+分组C：路径追踪 Overdrive + 超分 Balanced（最高负载）
+显卡	分辨率	画质	超分	低延迟	FG	平均FPS	1% Low	延迟(ms)	来源
+Arc B580	1080p	路径追踪最高	XeSS Balanced	未确认	关	47	38	无	3DNews
+Arc B580	1440p	路径追踪最高	XeSS Balanced	未确认	关	32	25	无	3DNews
+Arc B570	1080p	路径追踪最高	XeSS Balanced	未确认	关	42	34	无	3DNews
+Arc B570	1440p	路径追踪最高	XeSS Balanced	未确认	关	27	20	无	3DNews
+
+3DNews使用Acer Nitro OC版（B580 2740MHz / B570 2690MHz出厂超频），XeLL状态未在评测中声明。路径追踪负载远高于RT-Ultra，帧率不可与分组B直接比较。
+
+赛博朋克2077 — 无数据显卡
+
+RTX 2070：2023年PL 2.0测试阵容最低从RTX 3060起，未纳入2070。2020年1.x旧版有TechSpot定性描述（1080p Ultra+RT+DLSS Q "接近60fps"），但游戏版本过旧、无1% Low、无延迟，不满足条件。
+
+RTX 5070：2025年3月首发评测套件未收录赛博朋克2077；其余来源口径不清（原生或带MFG），按规则不采用。
+
+Arc A380：主流横评未纳入；Notebookcheck有原生帧率但未开XeSS，不满足条件。
+
+🐒 黑神话：悟空（Black Myth: Wukong）
+⚠️ 画质预设不统一：ComputerBase使用"Kino/影视级"预设（光栅最高），3DNews使用路径追踪最高画质。两者负载差异巨大，不可跨预设比较。
+分组A：影视级（Kino）预设 + DLSS Quality（1440p，ComputerBase同场测试）
+显卡	分辨率	画质	超分	低延迟	FG	平均FPS	1% Low	延迟(ms)	来源/平台
+RTX 5070	1440p	Kino（影视级）	DLSS Quality	未开	关	43.2	35.9	无	CB / 9800X3D
+RTX 4070	1440p	Kino（影视级）	DLSS Quality	未开	关	35.3	29.0	无	CB / 9800X3D
+RTX 4060	1440p	Kino（影视级）	DLSS Quality	未开	关	22.1	未入榜	无	CB / 9800X3D
+
+ComputerBase 2025年3月RTX 5070评测，同场测试9800X3D平台，驱动572.50（5070）/ 566.14（40系）。FG明确关闭。Reflex未开启、无延迟测量。此组为同场同口径，可在三款NVIDIA卡之间横向比较。
+
+分组B：路径追踪最高 + XeSS Balanced（3DNews同场测试）
+显卡	分辨率	画质	超分	低延迟	FG	平均FPS	1% Low	延迟(ms)	来源
+Arc B580	1080p	路径追踪最高	XeSS Balanced	未确认	关	23	17	无	3DNews
+Arc B580	1440p	路径追踪最高	XeSS Balanced	未确认	关	17	12	无	3DNews
+Arc B570	1080p	路径追踪最高	XeSS Balanced	未确认	关	20	14	无	3DNews
+Arc B570	1440p	路径追踪最高	XeSS Balanced	未确认	关	13	9	无	3DNews
+
+3DNews使用Acer Nitro OC版，路径追踪负载极高。XeLL状态未声明。此组可在B580/B570之间横向比较，但不可与分组A（Kino光栅）比较。
+
+分组C：Kino（影视级）预设 + XeSS Quality（1080p，ComputerBase同场测试）
+显卡	分辨率	画质	超分	低延迟	FG	平均FPS	1% Low	延迟(ms)	来源/平台
+Arc A770	1080p	Kino（影视级）	XeSS Quality	不可用*	关	29.2	22.7	无	CB / 7950X3D
+Arc A750	1080p	Kino（影视级）	XeSS Quality	不可用*	关	26.8	21.8	无	CB / 7950X3D
+
+* 2024年8月评测（驱动5972）时Xe Low Latency尚未发布。ComputerBase同场测试7950X3D平台。1440p档Arc卡未进入榜单（下限为RTX 4060 Ti 39.3fps）。
+
+黑神话：悟空 — 无数据显卡
+
+RTX 2070 / 3060 / 3070：NotebookCheck测试使用TSR 100%原生渲染（非DLSS），不满足超分条件；无权威媒体在DLSS Quality+Reflex开启下测试这三款老卡。
+
+RTX 5060：2026年横评套件已轮换出本作；IT之家数据使用TSR或搭配帧生成，不满足条件。
+
+Arc A380：主流横评未纳入，无满足条件的公开数据。
+
+⏱️ 延迟数据专项
+端到端系统延迟（PC Latency）实测数据
+显卡	游戏	分辨率	设置	XeLL关闭	XeLL开启	改善幅度	来源
+Arc B580	赛博朋克2077	1440p	Ultra+XeSS Q+FG关	69 ms	34 ms	↓51%	PCGH
+这是本次汇编中唯一的延迟实测数据点。PCGH（2026年2月，XeSS 3 MFG驱动时代）在B580上实测：Xe Low Latency开启后端到端延迟从69ms降至34ms，帧率几乎不变（65→64 FPS）。这直观展示了低延迟技术的价值——以几乎零帧率代价换取约50%的延迟降低。
+
+NVIDIA全系（2070/3060/3070/4060/4070/5060/5070）：未找到任何在3A大作中开启Reflex并报告端到端延迟的公开评测数据。NVIDIA官方Reflex延迟数据集中在CS2、Valorant等电竞项目，Digital Foundry/Gamers Nexus的延迟专题也不逐卡列出3A单机的ms数值。
+
+Arc A系列（A380/A750/A770）：Xe Low Latency 2025年中才发布，所有A系列评测均早于此时间，无法开启该技术，亦无延迟测量。
+
+Arc B570：未找到任何公开评测同时给出XeLL开启+延迟读数。
+
+⚖️ 同场同口径可对比数据（最有参考价值）
+① 赛博朋克2077 RT-Ultra + DLSS/XeSS Quality + 1080p（ComputerBase 2023-09，7950X3D同场）
+排名	显卡	平均FPS	1% Low	相对3060
+1	RTX 3070	55.0	42.4	+24%
+2	RTX 3060	44.3	38.7	基准
+3	Arc A770 16GB	40.8	35.6	-8%
+4	Arc A750 8GB	36.8	31.7	-17%
+
+同场测试、同平台、同驱动时代（2023年9月），这是最可靠的跨厂商对比。注意：RTX 3070/3060用DLSS，A770/A750用XeSS，两者超分质量略有差异但均为Quality档。Reflex/XeLL均未开启。
+
+② 黑神话：悟空 Kino + DLSS Quality + 1440p（ComputerBase 2025-03，9800X3D同场）
+排名	显卡	平均FPS	1% Low	相对4060
+1	RTX 5070	43.2	35.9	+95%
+2	RTX 4070	35.3	29.0	+60%
+3	RTX 4060	22.1	—	基准
+
+同场测试、同平台、FG关闭。RTX 5070领先4070约22%，领先4060约95%。Reflex未开启。
+
+③ 黑神话：悟空 路径追踪 + XeSS Balanced（3DNews同场，B580 vs B570）
+显卡	1080p 平均/1%Low	1440p 平均/1%Low	B580领先幅度
+Arc B580	23 / 17	17 / 12	1080p +15%
+1440p +31%
+Arc B570	20 / 14	13 / 9
+
+均为Acer Nitro OC版，同场测试。路径追踪负载下B580领先B570约15-31%。XeLL状态未确认。
+
+🏆 性能梯队划分（基于可用数据的定性判断）
+🥇 第一梯队（高端）
+
+RTX 5070 / RTX 4070
+1440p 3A高画质+超分可流畅运行。黑神话Kino 1440p：5070=43fps、4070=35fps。赛博朋克RT-Ultra 1080p：4070=87fps。缺延迟数据。
+
+🥈 第二梯队（中高端）
+
+RTX 5060 / RTX 3070 / Arc B580
+1080p高画质+超分流畅，1440p需降低画质。5060赛博朋克光栅1080p=108fps；3070 RT-Ultra 1080p=55fps；B580有唯一完整延迟数据（34ms）。
+
+🥉 第三梯队（中端）
+
+RTX 4060 / RTX 3060 / Arc A770 / Arc B570
+1080p中高画质+超分可玩，1440p吃力。4060赛博朋克光追1080p=55fps；3060 RT-Ultra 1080p=44fps；A770 RT-Ultra 1080p=41fps；B570路径追踪1080p=42fps。
+
+🏅 第四梯队（入门）
+
+Arc A750 / RTX 2070 / Arc A380
+A750 RT-Ultra 1080p=37fps，勉强可玩。2070和A380在目标游戏中无满足条件的公开数据，2070为2018年老卡8GB显存，A380定位入门6GB显存。
+
+⚠️ 梯队划分仅为基于有限数据的定性参考：各卡数据来自不同评测、不同画质预设、不同平台和驱动，不构成精确排名。特别是RTX 2070和A380因无数据被归入最低梯队，不代表其实际性能一定最差。
+🔧 技术条件说明
+低延迟技术
+技术	厂商	支持显卡	发布时间	本次数据中状态
+NVIDIA Reflex	NVIDIA	RTX 20/30/40/50全系	2020年	所有评测均未开启/未报告
+Intel Xe Low Latency	Intel	Arc B系列（B570/B580）	2025年中	仅B580有1组开启数据
+Intel Xe Low Latency	Intel	Arc A系列（A380/A750/A770）	2025年中（后补支持）	评测时技术不存在，无法开启
+超分辨率技术
+技术	厂商	支持显卡	Quality档渲染比例
+DLSS 2.x	NVIDIA	RTX 20/30系	67%
+DLSS 3/4（超分部分）	NVIDIA	RTX 40/50系	67%
+XeSS 1.x	Intel	Arc A/B全系	67%
+XeSS 2	Intel	Arc B系列	67%
+帧生成（本次要求关闭）
+技术	厂商	支持显卡	本次处理
+DLSS Frame Generation	NVIDIA	RTX 40/50系	✅ 已排除所有FG开启数据
+XeSS FG / MFG	Intel	Arc B系列	✅ 已排除所有FG开启数据
+—	—	RTX 20/30系、Arc A系	硬件不支持FG，无需排除
+📚 来源引用
+
+ComputerBase — 赛博朋克2077 Phantom Liberty专项（2023-09）
+https://www.computerbase.de/2023-09/cyberpunk-2077-phantom-liberty-benchmark-test/2/
+提供：RTX 3070/3060、Arc A770/A750 的 RT-Ultra+DLSS/XeSS Quality 1080p/1440p 帧率与1% Low。平台7950X3D，驱动537.42(N)/4826(I)。
+
+ComputerBase — RTX 5060/4060横评（2026-05）
+https://www.computerbase.de/2026-05/nvidia-geforce-rtx-5060-im-test-benchmark-test/
+提供：RTX 5060/4060 赛博朋克2077 1080p 光栅/光追+DLSS Quality 帧率与1% Low。平台9800X3D，FG明确关闭。
+
+ComputerBase — RTX 5070评测（2025-03）
+https://www.computerbase.de/2025-03/nvidia-geforce-rtx-5070-test/
+提供：RTX 5070/4070/4060 黑神话悟空 1440p Kino+DLSS Quality 帧率与1% Low。平台9800X3D，FG关闭。
+
+ComputerBase — 黑神话：悟空专项（2024-08）
+https://www.computerbase.de/2024-08/black-myth-wukong-benchmark-test/3/
+提供：Arc A770/A750 黑神话悟空 1080p Kino+XeSS Quality 帧率与1% Low。平台7950X3D，驱动5972。
+
+PCGH / nichepcgamer — XeSS 3 MFG专项（2026-02）
+https://www.nichepcgamer.com/archives/intel-arc-b580-mfg-benchmark.html
+提供：Arc B580 赛博朋克2077 1440p Ultra+XeSS Quality，XeLL开/关对照帧率与端到端延迟。★唯一完整命中数据点。平台9600X，驱动8039。
+
+3DNews — Acer Nitro Arc B580 OC评测（2025-08）
+https://3dnews.ru/1127980/obzor-acer-nitro-intel-arc-b580-oc
+提供：B580 赛博朋克/黑神话 路径追踪+XeSS Balanced 1080p/1440p 帧率与1% Low。FG关闭，XeLL状态未确认。
+
+3DNews — Acer Nitro Arc B570 OC评测（2026-07）
+https://3dnews.ru/1144729/obzor-acer-nitro-intel-arc-b570-oc
+提供：B570 赛博朋克/黑神话 路径追踪+XeSS Balanced 1080p/1440p 帧率与1% Low。FG关闭，XeLL状态未确认。
+
+TechPowerUp — Arc B580首发评测（2024-12）
+https://www.techpowerup.com/review/intel-arc-b580/
+旁证：原生分辨率数据（未开XeSS），不满足本次超分条件，未采用。
+
+📝 最终结论
+
+1. 数据现实：在"超分辨率开启 + 低延迟开启 + 帧生成关闭 + 有延迟读数"的严格条件下，12款显卡×2款目标游戏的24个组合中，仅Arc B580×赛博朋克2077一个组合有完整公开数据（64 FPS / 34ms延迟）。其余组合要么缺延迟、要么缺低延迟、要么完全无数据。
+
+2. 帧率表现（基于同场可对比数据）：
+
+赛博朋克2077 RT-Ultra 1080p：RTX 3070(55) > RTX 3060(44) > A770(41) > A750(37)
+黑神话悟空 Kino 1440p：RTX 5070(43) > RTX 4070(35) > RTX 4060(22)
+黑神话悟空 路径追踪 1080p：B580(23) > B570(20)
+
+3. 延迟表现：仅B580有实测数据——XeLL开启后赛博朋克1440p延迟从69ms降至34ms（降幅51%），帧率几乎不变。这证明低延迟技术在3A大作中价值显著。NVIDIA全系和Arc A/B570均无公开3A延迟实测。
+
+4. 梯队划分（定性参考）：第一梯队 RTX 5070/4070；第二梯队 RTX 5060/3070/B580；第三梯队 RTX 4060/3060/A770/B570；第四梯队 A750/2070/A380（后两者无数据）。
+
+5. 重要提醒：本报告所有数据均为公开评测汇编，非本机实测。跨代、跨厂商、跨评测的数据不可精确对比。如需精确的帧率和延迟数据，建议在统一平台上使用 NVIDIA Frame View 或高速相机自行实测。
+
+汇编日期：2026-09-24 | 数据为公开评测汇编，非本机实测 | 配置条件详见各来源

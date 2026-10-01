@@ -1,0 +1,5 @@
+﻿
+D:\lingjing\src\capture\WGCCapture.cpp(92,9): error C2059: 语法错误:“if” [D:\lingjing\build\Lingjing.vcxproj]
+D:\lingjing\src\capture\WGCCapture.cpp(92,71): error C2238: 意外的标记位于“;”之前 [D:\lingjing\build\Lingjing.vcxproj]
+
+
