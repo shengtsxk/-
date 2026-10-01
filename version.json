@@ -1,5 +1,5 @@
 ﻿{
-    "download_url":  "https://github.com/shengtsxk/-/raw/main/Lingjing-v1.3.6-setup.exe",
-    "latest_version":  "1.3.6",
-    "notes":  "v1.3.6：修复字体看不清——面板默认不透明度提升至95%（当前设置同步修正），次文本/禁用文本提亮一档，subdued字号8pt→9pt，JEXE/ASESS切换按钮文字提亮；修复鼠标划过黑块（半透明控件hover重绘残影，随不透明度提升消除）。v1.3.5：主界面拆分JEXE帧生成/ASESS超分辨率模块。"
+    "download_url":  "Lingjing-v1.3.7-setup.exe",
+    "latest_version":  "1.3.7",
+    "notes":  "v1.3.7：修复更新推送失效——更新检查与安装包下载全部改走 GitHub API（绕开 CDN 缓存滞后与 raw 域名连接失败），软件内检查更新现在能实时收到最新版本并直接下载安装，不再打开网页。v1.3.6：字体清晰度提升（面板不透明度95%、文字提亮）与划过黑块修复。"
 }
