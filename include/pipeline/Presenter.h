@@ -109,8 +109,10 @@ namespace Lingjing {
 
         // ---- 真实输出（GDI + CPU 帧混合） ----
         void* hOutputWnd_ = nullptr;      // 输出预览窗口 HWND
-        uint32_t outW_ = 0;               // 输出宽度
-        uint32_t outH_ = 0;               // 输出高度
+        uint32_t outW_ = 0;               // 输出基准宽度（目标窗口客户区，创建窗口用）
+        uint32_t outH_ = 0;               // 输出基准高度
+        uint32_t srcW_ = 0;               // 源帧宽度（WGC/BitBlt 捕获帧实际尺寸）
+        uint32_t srcH_ = 0;               // 源帧高度
         uint32_t multiplier_ = 2;         // 插帧倍率
         uint32_t frameCounter_ = 0;       // 倍率循环计数
         bool havePrevBits_ = false;       // 是否已缓存上一帧

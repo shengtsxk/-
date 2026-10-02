@@ -228,6 +228,13 @@ namespace Lingjing {
         void GameListWidget::onItemClicked(QListWidgetItem* item) {
             if (!item) return;
 
+            // 点击后暂停自动刷新 2 秒，避免刷新重建列表把刚选中的条目
+            // 清掉导致 gameSelected 信号丢失（"No game selected"）
+            if (refreshTimer_) {
+                refreshTimer_->stop();
+                refreshTimer_->start(2000);
+            }
+
             uint64_t hash = item->data(Qt::UserRole).toULongLong();
             void* hwnd = item->data(Qt::UserRole + 1).value<void*>();
             QString name = item->data(Qt::UserRole + 2).toString();

@@ -98,6 +98,8 @@ namespace Lingjing {
 
         outW_ = static_cast<uint32_t>(rc.right);
         outH_ = static_cast<uint32_t>(rc.bottom);
+        srcW_ = outW_;
+        srcH_ = outH_;
 
         // 输出窗口尺寸：超分开启时按倍率放大，但限制在目标显示器工作区内，
         // 避免放大后超出屏幕（否则画面只剩左上角一小块可见）
@@ -306,10 +308,13 @@ namespace Lingjing {
             fh = sd.Height;
             if (fw == 0 || fh == 0) return false;
 
-            if (fw != outW_ || fh != outH_) {
-                outW_ = fw; outH_ = fh;
-                prevFrameBits_.resize((size_t)outW_ * outH_ * 4, 0);
-                curFrameBits_.resize((size_t)outW_ * outH_ * 4, 0);
+            // 源帧尺寸变化时重建缓存（输出基准 outW_/outH_ 保持目标客户区，
+            // 不随捕获帧变化，否则 StretchDIBits 源尺寸与输出窗口错配，
+            // 导致画面缩小/错位）
+            if (fw != srcW_ || fh != srcH_) {
+                srcW_ = fw; srcH_ = fh;
+                prevFrameBits_.resize((size_t)srcW_ * srcH_ * 4, 0);
+                curFrameBits_.resize((size_t)srcW_ * srcH_ * 4, 0);
                 havePrevBits_ = false;
             }
 
@@ -332,8 +337,8 @@ namespace Lingjing {
             if (mapped) {
                 const uint8_t* srcp = static_cast<const uint8_t*>(ms.pData);
                 uint8_t* dst = curFrameBits_.data();
-                const size_t pitch = (size_t)outW_ * 4;
-                for (UINT y = 0; y < outH_; ++y) {
+                const size_t pitch = (size_t)srcW_ * 4;
+                for (UINT y = 0; y < srcH_; ++y) {
                     std::memcpy(dst, srcp + (size_t)y * ms.RowPitch, pitch);
                     dst += pitch;
                 }
@@ -342,7 +347,7 @@ namespace Lingjing {
                 // 若源纹理为 R8G8B8A8，与输出 BGRA 布局互换红蓝
                 if (sd.Format == DXGI_FORMAT_R8G8B8A8_UNORM) {
                     uint32_t* p = reinterpret_cast<uint32_t*>(curFrameBits_.data());
-                    for (size_t k = 0; k < (size_t)outW_ * outH_; ++k) {
+                    for (size_t k = 0; k < (size_t)srcW_ * srcH_; ++k) {
                         const uint32_t v = p[k];
                         const uint32_t r = v & 0xFFu;
                         const uint32_t b = (v >> 16) & 0xFFu;
@@ -356,14 +361,14 @@ namespace Lingjing {
 
         // CPU 像素缓冲（nativeHandle 指向 BGRA 内存）
         if (frame.isCpuBuffer && frame.nativeHandle && fw > 0 && fh > 0) {
-            if (fw != outW_ || fh != outH_) {
-                outW_ = fw; outH_ = fh;
-                prevFrameBits_.resize((size_t)outW_ * outH_ * 4, 0);
-                curFrameBits_.resize((size_t)outW_ * outH_ * 4, 0);
+            if (fw != srcW_ || fh != srcH_) {
+                srcW_ = fw; srcH_ = fh;
+                prevFrameBits_.resize((size_t)srcW_ * srcH_ * 4, 0);
+                curFrameBits_.resize((size_t)srcW_ * srcH_ * 4, 0);
                 havePrevBits_ = false;
             }
             std::memcpy(curFrameBits_.data(), frame.nativeHandle,
-                (size_t)outW_ * outH_ * 4);
+                (size_t)srcW_ * srcH_ * 4);
             return true;
         }
 
@@ -379,10 +384,10 @@ namespace Lingjing {
         int h = rc.bottom - rc.top;
         if (w <= 0 || h <= 0) return false;
 
-        // 尺寸变化时重建缓存
-        if ((uint32_t)w != outW_ || (uint32_t)h != outH_) {
-            outW_ = (uint32_t)w;
-            outH_ = (uint32_t)h;
+        // 尺寸变化时重建缓存（仅更新源帧尺寸，输出基准保持不变）
+        if ((uint32_t)w != srcW_ || (uint32_t)h != srcH_) {
+            srcW_ = (uint32_t)w;
+            srcH_ = (uint32_t)h;
             prevFrameBits_.resize((size_t)w * h * 4, 0);
             curFrameBits_.resize((size_t)w * h * 4, 0);
             havePrevBits_ = false;
@@ -438,7 +443,7 @@ namespace Lingjing {
         HWND hOut = (HWND)hOutputWnd_;
         if (!hOut || outW_ == 0 || outH_ == 0) return;
 
-        size_t n = (size_t)outW_ * outH_ * 4;
+        size_t n = (size_t)srcW_ * srcH_ * 4;
         std::vector<uint8_t> blend(n);
 
         uint32_t m = multiplier_ > 0 ? multiplier_ : 2;
@@ -455,7 +460,7 @@ namespace Lingjing {
             uint8_t* O = blend.data();
 
             // GPU（D3D11）着色器混合优先，失败回退 CPU 定点混合
-            if (!gpuBlendFrame(A, B, O, outW_, outH_, alpha)) {
+            if (!gpuBlendFrame(A, B, O, srcW_, srcH_, alpha)) {
                 // CPU 混合：定点 alpha（0-256），按 32bit 一次混合 4 字节，减少延迟
                 const int ia = (int)(alpha * 256.0f);
                 const int inv = 256 - ia;
@@ -480,18 +485,18 @@ namespace Lingjing {
 
         // 超分辨率：输出前放大（ED-ASR），画面按倍率放大显示
         const uint8_t* dispPtr = blend.data();
-        LONG dispW = (LONG)outW_;
-        LONG dispH = (LONG)outH_;
-        if (superResEnabled_ && outW_ >= 4 && outH_ >= 4) {
+        LONG dispW = (LONG)srcW_;
+        LONG dispH = (LONG)srcH_;
+        if (superResEnabled_ && srcW_ >= 4 && srcH_ >= 4) {
             float srMs = 0.0f;
-            // ED-ASR 只输出目标窗口区域（outW_ x outH_），
+            // ED-ASR 只输出源帧区域（srcW_ x srcH_），
             // 内部通过 UV 映射实现 scale 倍放大，读回量小、延迟低
-            presentBits_.resize((size_t)outW_ * outH_ * 4);
-            if (superRes_.upscale(blend.data(), (int)outW_, (int)outH_,
+            presentBits_.resize((size_t)srcW_ * srcH_ * 4);
+            if (superRes_.upscale(blend.data(), (int)srcW_, (int)srcH_,
                     (int)superResScale_, presentBits_, srMs)) {
                 dispPtr = presentBits_.data();
-                dispW = (LONG)outW_;
-                dispH = (LONG)outH_;
+                dispW = (LONG)srcW_;
+                dispH = (LONG)srcH_;
             } else {
                 // 超分运行中失败（如纹理重建失败）：关闭超分并回缩输出窗口到 1x，
                 // 避免"窗口按 2 倍放大而画面仍为原尺寸"导致画面只占左上角 1/4、其余黑屏
@@ -501,9 +506,8 @@ namespace Lingjing {
             }
         }
 
-        // GDI 输出到预览窗口（显示目标窗口区域的画面，放大填满窗口；
-        // 超分开启时源区取超分图的目标窗口区域，而不是把整个超分图
-        // 缩小回窗口——否则超分放大效果被抵消，画面只剩原大小甚至更小）
+        // GDI 输出到预览窗口：源区取源帧区域（超分时为超分后的源帧区域），
+        // 放大填满整个输出窗口客户区——保证画面始终铺满，不会缩小/错位
         HDC hdcOut = GetDC(hOut);
         if (hdcOut) {
             RECT client = {};
@@ -519,10 +523,10 @@ namespace Lingjing {
             bi.bmiHeader.biBitCount = 32;
             bi.bmiHeader.biCompression = BI_RGB;
 
-            // 源区 = 目标窗口客户区尺寸（dispPtr 数据行的前 outW_ 像素）
+            // 源区 = 源帧区域（dispPtr 数据的前 srcW_ 像素）
             StretchDIBits(hdcOut,
                 0, 0, cw, ch,
-                0, 0, (LONG)outW_, (LONG)outH_,
+                0, 0, (LONG)srcW_, (LONG)srcH_,
                 dispPtr, &bi, DIB_RGB_COLORS, SRCCOPY);
 
             ReleaseDC(hOut, hdcOut);
