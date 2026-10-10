@@ -10,8 +10,11 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <d3d11.h>
+#include <dxgi.h>
+#include <dxgi1_2.h>
 #include <d3dcompiler.h>
 #pragma comment(lib, "d3d11.lib")
+#pragma comment(lib, "dxgi.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 #endif
 
@@ -66,14 +69,24 @@ namespace Lingjing {
                 case WM_PAINT: {
                     PAINTSTRUCT ps;
                     BeginPaint(h, &ps);
+                    Presenter* self = reinterpret_cast<Presenter*>(
+                        GetWindowLongPtrW(h, GWLP_USERDATA));
+                    if (self) self->paintFrame(h, ps.hdc);
                     EndPaint(h, &ps);
                     return 0;
                 }
                 case WM_ERASEBKGND:
-                    return 1;  // 由 StretchDIBits 全量重绘，避免闪烁
+                    return 1;  // 由 WM_PAINT 全量重绘，避免闪烁
                 case WM_SIZE: {
-                    // 尺寸变化时清理背景
-                    InvalidateRect(h, nullptr, TRUE);
+                    // 尺寸变化时仅失效区域，由 WM_PAINT 用最近帧重绘
+                    InvalidateRect(h, nullptr, FALSE);
+                    return 0;
+                }
+                case WM_APP + 1: {
+                    // 管线线程请求重绘：窗口线程内执行 UpdateWindow 触发 WM_PAINT
+                    // （GDI 绘制必须在窗口所属线程执行，跨线程直画内容不会被合成）
+                    InvalidateRect(h, nullptr, FALSE);
+                    UpdateWindow(h);
                     return 0;
                 }
                 default:
@@ -138,16 +151,28 @@ namespace Lingjing {
         }
 
         hOutputWnd_ = CreateWindowExW(
-            WS_EX_TOPMOST | WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
+            WS_EX_TOPMOST | WS_EX_NOACTIVATE,
             L"LingjingOutputWnd", L"灵境 输出画面",
-            WS_POPUP,
+            WS_OVERLAPPEDWINDOW,
             posX, posY, wndW, wndH,
             nullptr, nullptr, hInst, nullptr);
 
         if (hOutputWnd_) {
-            ShowWindow((HWND)hOutputWnd_, SW_SHOW);
+            SetWindowLongPtrW((HWND)hOutputWnd_, GWLP_USERDATA,
+                reinterpret_cast<LONG_PTR>(this));
+            // 虚拟桌面/远程会话验收：存在 hide_output.flag 时隐藏独立输出窗口，
+            // 画面改由 Qt 主窗口预览区显示（该环境不合成裸窗口内容）
+            bool hideOutput = false;
+            {
+                const wchar_t* flag = L"C:\\Users\\Asgard\\AppData\\Roaming\\LingjingProject\\Lingjing\\hide_output.flag";
+                if (GetFileAttributesW(flag) != INVALID_FILE_ATTRIBUTES) {
+                    hideOutput = true;
+                }
+            }
+            ShowWindow((HWND)hOutputWnd_, hideOutput ? SW_HIDE : SW_SHOW);
             UpdateWindow((HWND)hOutputWnd_);
-            LOG_INFO("Presenter: output window created (%ux%u)", outW_, outH_);
+            LOG_INFO("Presenter: output window created (%ux%u) hide=%d",
+                outW_, outH_, (int)hideOutput);
         } else {
             LOG_WARN("Presenter: failed to create output window");
         }
@@ -161,11 +186,15 @@ namespace Lingjing {
         // 初始化 GPU（D3D11）插帧混合后端；失败自动回退 CPU 混合
         initGpuBlend();
 
-        LOG_INFO("Presenter initialized: mode=%u, queueSize=%u, output=%ux%u, gpuBlend=%d",
+        // D3D11 swap chain 输出（DirectComposition 合成，虚拟桌面可显示）
+        createSwapChain();
+
+        LOG_INFO("Presenter initialized: mode=%u, queueSize=%u, output=%ux%u, gpuBlend=%d, swapChain=%d",
             static_cast<uint32_t>(config.mode),
             config.maxQueueSize,
             outW_, outH_,
-            gpuBlendReady_ ? 1 : 0);
+            gpuBlendReady_ ? 1 : 0,
+            swapChain_ ? 1 : 0);
 
         return true;
     }
@@ -176,6 +205,10 @@ namespace Lingjing {
         clearQueue();
 
 #ifdef _WIN32
+        if (swapChain_) {
+            static_cast<IDXGISwapChain*>(swapChain_)->Release();
+            swapChain_ = nullptr;
+        }
         if (hOutputWnd_) {
             DestroyWindow((HWND)hOutputWnd_);
             hOutputWnd_ = nullptr;
@@ -308,10 +341,19 @@ namespace Lingjing {
             fh = sd.Height;
             if (fw == 0 || fh == 0) return false;
 
+            static bool loggedFmt = false;
+            if (!loggedFmt) {
+                LOG_INFO("Presenter: WGC texture fmt=%u size=%ux%u",
+                    (unsigned)sd.Format, fw, fh);
+                loggedFmt = true;
+            }
+
             // 源帧尺寸变化时重建缓存（输出基准 outW_/outH_ 保持目标客户区，
             // 不随捕获帧变化，否则 StretchDIBits 源尺寸与输出窗口错配，
             // 导致画面缩小/错位）
             if (fw != srcW_ || fh != srcH_) {
+                LOG_INFO("Presenter: capture frame size changed -> %ux%u (base %ux%u)",
+                    fw, fh, outW_, outH_);
                 srcW_ = fw; srcH_ = fh;
                 prevFrameBits_.resize((size_t)srcW_ * srcH_ * 4, 0);
                 curFrameBits_.resize((size_t)srcW_ * srcH_ * 4, 0);
@@ -508,28 +550,25 @@ namespace Lingjing {
 
         // GDI 输出到预览窗口：源区取源帧区域（超分时为超分后的源帧区域），
         // 放大填满整个输出窗口客户区——保证画面始终铺满，不会缩小/错位
-        HDC hdcOut = GetDC(hOut);
-        if (hdcOut) {
-            RECT client = {};
-            GetClientRect(hOut, &client);
-            int cw = client.right - client.left;
-            int ch = client.bottom - client.top;
+        // 保存最近帧供绘制（D3D11 swap chain 输出与 WM_PAINT 双路径共用）
+        {
+            std::lock_guard<std::mutex> lock(storeMutex_);
+            if ((uint32_t)dispW != storeW_ || (uint32_t)dispH != storeH_) {
+                frameStore_.assign((size_t)dispW * (size_t)dispH * 4, 0);
+                storeW_ = (uint32_t)dispW;
+                storeH_ = (uint32_t)dispH;
+            }
+            std::memcpy(frameStore_.data(), dispPtr,
+                (size_t)dispW * (size_t)dispH * 4);
+        }
 
-            BITMAPINFO bi = {};
-            bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
-            bi.bmiHeader.biWidth = dispW;
-            bi.bmiHeader.biHeight = -dispH;
-            bi.bmiHeader.biPlanes = 1;
-            bi.bmiHeader.biBitCount = 32;
-            bi.bmiHeader.biCompression = BI_RGB;
-
-            // 源区 = 源帧区域（dispPtr 数据的前 srcW_ 像素）
-            StretchDIBits(hdcOut,
-                0, 0, cw, ch,
-                0, 0, (LONG)srcW_, (LONG)srcH_,
-                dispPtr, &bi, DIB_RGB_COLORS, SRCCOPY);
-
-            ReleaseDC(hOut, hdcOut);
+        // D3D11 swap chain 输出优先（DirectComposition 合成，跨线程安全、
+        // 虚拟桌面/合成器可捕获；GDI 直画在该环境不显示，仅作回退）
+        if (swapChain_) {
+            presentSwapChain();
+        } else {
+            InvalidateRect(hOut, nullptr, FALSE);
+            PostMessageW(hOut, WM_APP + 1, 0, 0);
         }
 
         // 更新上一帧缓存
@@ -538,6 +577,215 @@ namespace Lingjing {
         } else {
             std::memcpy(prevFrameBits_.data(), curFrameBits_.data(), n);
             havePrevBits_ = true;
+        }
+    }
+
+    // ============================================================================
+    // D3D11 swap chain：创建（窗口创建后）与呈现（帧数据 -> backbuffer -> Present）
+    // ============================================================================
+
+    bool Presenter::createSwapChain() {
+#ifdef _WIN32
+        if (!d3dDevice_ || !hOutputWnd_) return false;
+
+        ID3D11Device* dev = static_cast<ID3D11Device*>(d3dDevice_);
+        IDXGIDevice* dxgiDev = nullptr;
+        if (FAILED(dev->QueryInterface(IID_PPV_ARGS(&dxgiDev)))) {
+            LOG_WARN("Presenter: swap chain: QueryInterface IDXGIDevice failed");
+            return false;
+        }
+        IDXGIAdapter* adapter = nullptr;
+        dxgiDev->GetAdapter(&adapter);
+        dxgiDev->Release();
+        if (!adapter) return false;
+
+        IDXGIFactory2* factory = nullptr;
+        if (FAILED(adapter->GetParent(IID_PPV_ARGS(&factory)))) {
+            adapter->Release();
+            LOG_WARN("Presenter: swap chain: GetParent factory failed");
+            return false;
+        }
+        adapter->Release();
+
+        RECT rc = {};
+        GetClientRect((HWND)hOutputWnd_, &rc);
+        int cw = rc.right - rc.left;
+        int ch = rc.bottom - rc.top;
+        if (cw <= 0 || ch <= 0) {
+            factory->Release();
+            return false;
+        }
+
+        DXGI_SWAP_CHAIN_DESC1 desc = {};
+        desc.Width = (UINT)cw;
+        desc.Height = (UINT)ch;
+        desc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+        desc.SampleDesc.Count = 1;
+        desc.SampleDesc.Quality = 0;
+        desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        desc.BufferCount = 2;
+        desc.Scaling = DXGI_SCALING_STRETCH;
+        desc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
+        desc.AlphaMode = DXGI_ALPHA_MODE_IGNORE;
+
+        IDXGISwapChain1* sc = nullptr;
+        HRESULT hr = factory->CreateSwapChainForHwnd(dev, (HWND)hOutputWnd_,
+            &desc, nullptr, nullptr, &sc);
+        factory->Release();
+        if (FAILED(hr) || !sc) {
+            LOG_WARN("Presenter: swap chain create failed hr=0x%08lX", (unsigned long)hr);
+            return false;
+        }
+
+        // 禁用 Alt+Enter 全屏切换，避免干扰
+        IDXGIFactory* f0 = nullptr;
+        if (SUCCEEDED(sc->GetParent(IID_PPV_ARGS(&f0)))) {
+            f0->MakeWindowAssociation((HWND)hOutputWnd_, DXGI_MWA_NO_ALT_ENTER);
+            f0->Release();
+        }
+
+        swapChain_ = sc;
+        LOG_INFO("Presenter: swap chain created (%dx%d)", cw, ch);
+        return true;
+#else
+        return false;
+#endif
+    }
+
+    void Presenter::presentSwapChain() {
+#ifdef _WIN32
+        if (!swapChain_ || !d3dContext_) return;
+        IDXGISwapChain* sc = static_cast<IDXGISwapChain*>(swapChain_);
+        ID3D11DeviceContext* ctx = static_cast<ID3D11DeviceContext*>(d3dContext_);
+
+        std::vector<uint8_t> frame;
+        uint32_t fw = 0, fh = 0;
+        {
+            std::lock_guard<std::mutex> lock(storeMutex_);
+            if (frameStore_.empty()) return;
+            fw = storeW_;
+            fh = storeH_;
+            frame = frameStore_;
+        }
+        if (fw == 0 || fh == 0) return;
+
+        ID3D11Texture2D* bb = nullptr;
+        if (FAILED(sc->GetBuffer(0, IID_PPV_ARGS(&bb)))) return;
+
+        D3D11_TEXTURE2D_DESC bd = {};
+        bb->GetDesc(&bd);
+
+        // backbuffer 尺寸与帧尺寸不一致时 ResizeBuffers（窗口尺寸变化/超分倍率变化）
+        if (bd.Width != fw || bd.Height != fh) {
+            bb->Release();
+            if (SUCCEEDED(sc->ResizeBuffers(0, fw, fh, DXGI_FORMAT_UNKNOWN, 0))) {
+                if (FAILED(sc->GetBuffer(0, IID_PPV_ARGS(&bb)))) return;
+            } else {
+                return;
+            }
+        }
+
+        // 帧数据直写 backbuffer（B8G8R8A8，top-down）
+        ctx->UpdateSubresource(bb, 0, nullptr, frame.data(), fw * 4, 0);
+
+        // UI 预览回调（Qt 主窗口内显示，虚拟桌面/远程会话可正常合成）
+        if (frameCallback_) {
+            frameCallback_(frame.data(), fw, fh);
+        }
+
+        // 调试 dump：首次呈现把帧写成 BMP（确认 swap chain 输入数据）
+        {
+            static bool scDumped = false;
+            if (!scDumped) {
+                scDumped = true;
+                try {
+                    const size_t w = fw, h = fh;
+                    const size_t rowBytes = w * 4;
+                    std::vector<uint8_t> bmp(54 + rowBytes * h, 0);
+                    bmp[0] = 'B'; bmp[1] = 'M';
+                    uint32_t fsz = (uint32_t)(54 + rowBytes * h);
+                    memcpy(&bmp[2], &fsz, 4);
+                    uint32_t pixOff = 54;
+                    memcpy(&bmp[10], &pixOff, 4);
+                    uint32_t hdr = 40;
+                    memcpy(&bmp[14], &hdr, 4);
+                    int32_t iw = (int32_t)w, ih = -(int32_t)h;
+                    memcpy(&bmp[18], &iw, 4);
+                    memcpy(&bmp[22], &ih, 4);
+                    uint16_t planes = 1, bpp = 32;
+                    memcpy(&bmp[26], &planes, 2);
+                    memcpy(&bmp[28], &bpp, 2);
+                    memcpy(&bmp[54], frame.data(), rowBytes * h);
+                    const wchar_t* path = L"C:\\Users\\Asgard\\AppData\\Roaming\\LingjingProject\\Lingjing\\dump_swap.bmp";
+                    FILE* f = nullptr;
+                    _wfopen_s(&f, path, L"wb");
+                    if (f) { fwrite(bmp.data(), 1, bmp.size(), f); fclose(f); }
+                    LOG_INFO("Present: dumped swap frame BMP %ux%u", (unsigned)w, (unsigned)h);
+                } catch (...) { LOG_INFO("Present: swap dump failed"); }
+            }
+        }
+
+        HRESULT hrP = sc->Present(1, 0);
+        static int scDbg = 0;
+        if (scDbg < 5) {
+            LOG_INFO("Present: swap present=0x%08lX bb=%ux%u frame=%ux%u",
+                (unsigned long)hrP, bd.Width, bd.Height, fw, fh);
+            scDbg++;
+        }
+        bb->Release();
+#else
+        (void)0;
+#endif
+    }
+
+    // ============================================================================
+    // WM_PAINT 绘制：窗口过程用最近帧填充客户区
+    // ============================================================================
+
+    void Presenter::paintFrame(HWND hwnd, HDC hdc) {
+        std::vector<uint8_t> frame;
+        uint32_t fw = 0, fh = 0;
+        {
+            std::lock_guard<std::mutex> lock(storeMutex_);
+            if (frameStore_.empty()) return;
+            fw = storeW_;
+            fh = storeH_;
+            frame = frameStore_;
+        }
+
+        RECT client = {};
+        GetClientRect(hwnd, &client);
+        int cw = client.right - client.left;
+        int ch = client.bottom - client.top;
+        if (cw <= 0 || ch <= 0) return;
+
+        if ((++diagCounter_ % 60) == 1) {
+            LOG_INFO("Presenter: diag out=%ux%u src=%ux%u wndClient=%dx%d sr=%s(%ux) disp=%ux%u",
+                outW_, outH_, srcW_, srcH_, cw, ch,
+                superResEnabled_ ? "on" : "off", superResScale_,
+                (unsigned)fw, (unsigned)fh);
+        }
+
+        BITMAPINFO bi = {};
+        bi.bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+        bi.bmiHeader.biWidth = (LONG)fw;
+        bi.bmiHeader.biHeight = -(LONG)fh;  // top-down
+        bi.bmiHeader.biPlanes = 1;
+        bi.bmiHeader.biBitCount = 32;
+        bi.bmiHeader.biCompression = BI_RGB;
+
+        int sdibRes = StretchDIBits(hdc,
+            0, 0, cw, ch,
+            0, 0, (LONG)fw, (LONG)fh,
+            frame.data(), &bi, DIB_RGB_COLORS, SRCCOPY);
+        if (sdibRes == 0 || sdibRes == GDI_ERROR) {
+            static int sdibDbg = 0;
+            if (sdibDbg < 2) {
+                LOG_WARN("Present: StretchDIBits ret=%d err=%lu hwnd=%p wndClient=%dx%d disp=%ux%u",
+                    sdibRes, (unsigned long)GetLastError(), (void*)hwnd,
+                    cw, ch, (unsigned)fw, (unsigned)fh);
+                sdibDbg++;
+            }
         }
     }
 
@@ -556,20 +804,16 @@ namespace Lingjing {
         if (tcr.right <= 0 || tcr.bottom <= 0) return;
 
         // 无边框覆盖：输出窗口完全覆盖目标窗口客户区
+        // （尺寸恒等于目标客户区，与 swap chain backbuffer / ED-ASR 输出尺寸
+        //   保持一致，避免 CopyResource/UpdateSubresource 尺寸错配；
+        //   超分放大显示由 Presenter 绘制阶段完成）
         POINT origin = {0, 0};
         ClientToScreen(hTarget, &origin);
-
         const int tgtW = tcr.right - tcr.left;
         const int tgtH = tcr.bottom - tcr.top;
 
-        // 超分辨率开启时输出窗口按倍率放大，但限制在目标显示器工作区内，
-        // 避免放大后超出屏幕导致画面只剩左上角一小块
         int outW = tgtW;
         int outH = tgtH;
-        if (superResEnabled_ && superResScale_ >= 2) {
-            outW = tgtW * (int)superResScale_;
-            outH = tgtH * (int)superResScale_;
-        }
 
         // 限制在屏幕工作区内 + 位置钳制（超分放大后不超出屏幕）
         int newX = origin.x;

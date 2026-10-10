@@ -404,12 +404,12 @@ namespace Lingjing {
                 layout->addWidget(group);
             }
 
-            // 通用超分辨率（ASESS，D3D11 compute，任何显卡可运行）
+            // 通用超分辨率（LSR-BN，D3D11 compute，任何显卡可运行）
             {
-                QGroupBox* group = new QGroupBox("通用超分辨率（ASESS）");
+                QGroupBox* group = new QGroupBox("通用超分辨率（LSR-BN）");
                 QFormLayout* form = new QFormLayout(group);
 
-                superResCheck_ = new QCheckBox("启用 ASESS 超分辨率");
+                superResCheck_ = new QCheckBox("启用 LSR-BN 超分辨率");
                 form->addRow("", superResCheck_);
 
                 superResScaleCombo_ = new QComboBox();
@@ -421,7 +421,7 @@ namespace Lingjing {
                 form->addRow("放大倍数:", superResScaleCombo_);
 
                 QLabel* hint = new QLabel(
-                    "原创边缘引导自适应算法（ASESS v2）：8 方向边缘分类 + 边缘强度调制\n"
+                    "原创边缘引导自适应算法（LSR-BN v2）：8 方向边缘分类 + 边缘强度调制\n"
                     "细节重建 + 振铃抑制，画质显著优于双三次；无需 Tensor Core / 深度学习。\n"
                     "3060 级独显 2 倍放大约 5ms/帧。");
                 hint->setWordWrap(true);

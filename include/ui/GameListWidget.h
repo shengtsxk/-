@@ -44,6 +44,10 @@ namespace Lingjing {
 
             std::vector<GameEntry> games_;
 
+            // 已选目标（防止 2 秒自动刷新清空选中导致 "No game selected"）
+            uint64_t selectedHash_ = 0;
+            bool hasSelection_ = false;
+
             QLabel* titleLabel_ = nullptr;
             QLineEdit* searchBox_ = nullptr;
             QListWidget* listWidget_ = nullptr;

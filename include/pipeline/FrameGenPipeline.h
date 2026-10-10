@@ -189,6 +189,12 @@ namespace Lingjing {
 
         using ErrorCallback = std::function<void(const Error& error)>;
 
+        // 帧回调（UI 预览）：转发给 Presenter，每帧把画面交给界面层
+        void setFrameCallback(Presenter::FrameCallback cb) {
+            frameCallback_ = std::move(cb);
+            if (presenter_) presenter_->setFrameCallback(frameCallback_);
+        }
+
         void setStateChangeCallback(StateChangeCallback cb) {
             stateCallback_ = std::move(cb);
         }
@@ -222,6 +228,7 @@ namespace Lingjing {
         std::unique_ptr<FrameBlender> frameBlender_;
         std::unique_ptr<MultiFrameGenerator> multiFrameGenerator_;
         std::unique_ptr<Presenter> presenter_;
+        Presenter::FrameCallback frameCallback_;   // UI 预览回调（presenter 创建后绑定）
 
         // 配置
         PipelineConfig config_;

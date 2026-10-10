@@ -1,4 +1,4 @@
-﻿// ============================================================================
+// ============================================================================
 // 灵境 Lingjing — 主入口
 // ============================================================================
 
@@ -13,6 +13,8 @@
 
 #include <QApplication>
 #include <QFont>
+#include <QSharedMemory>
+#include <windows.h>
 #include <QDir>
 #include <QStandardPaths>
 #include <QSettings>
@@ -148,6 +150,22 @@ int main(int argc, char* argv[]) {
 
     QApplication app(argc, argv);
 
+    // ========================================================================
+    // 单实例保护：已有实例运行时，激活其主窗口并退出本进程
+    // ========================================================================
+    {
+        static QSharedMemory* sharedMem = new QSharedMemory("LingjingSingletonKey");
+        if (!sharedMem->create(1)) {
+            LOG_INFO("Another Lingjing instance is running, activating it and exiting");
+            HWND h = ::FindWindowW(nullptr, L"灵境 Lingjing");
+            if (h) {
+                if (::IsIconic(h)) ::ShowWindow(h, SW_RESTORE);
+                ::SetForegroundWindow(h);
+            }
+            return 0;
+        }
+    }
+
     // 字体自适应：按主屏 DPI 缩放全局默认字体（高分屏自动放大，避免字体过小）
     {
         QScreen* screen = QGuiApplication::primaryScreen();
@@ -167,7 +185,7 @@ int main(int argc, char* argv[]) {
     app.setApplicationDisplayName("灵境");
     app.setOrganizationName("LingjingProject");
     app.setOrganizationDomain("lingjing.dev");
-    app.setApplicationVersion("1.4.0");
+    app.setApplicationVersion("1.4.5");
 
     // 应用图标（青鸾）
     QIcon appIcon("assets/icons/qingluan.png");

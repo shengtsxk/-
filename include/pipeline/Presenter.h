@@ -10,6 +10,14 @@
 #include <vector>
 #include <cstdint>
 
+#ifdef _WIN32
+// 仅前置声明，避免在头文件引入 windows.h（HWND/HDC 由 cpp 中真实类型匹配）
+struct HWND__;
+struct HDC__;
+typedef HWND__* HWND;
+typedef HDC__* HDC;
+#endif
+
 namespace Lingjing {
 
     // ============================================================================
@@ -55,12 +63,18 @@ namespace Lingjing {
 
     class Presenter {
     public:
+        // 帧回调（UI 预览）：每帧把最近一帧 BGRA 像素交给界面层显示
+        using FrameCallback = std::function<void(const uint8_t* rgba, uint32_t w, uint32_t h)>;
+
         Presenter();
         ~Presenter();
 
         bool initialize(void* targetHwnd, const PresentConfig& config);
 
         void shutdown();
+
+        // 注册帧回调（UI 预览显示）
+        void setFrameCallback(FrameCallback cb) { frameCallback_ = std::move(cb); }
 
         // 提交一帧到队列
         bool submitFrame(const GpuTexture& frame,
@@ -115,10 +129,25 @@ namespace Lingjing {
         uint32_t srcH_ = 0;               // 源帧高度
         uint32_t multiplier_ = 2;         // 插帧倍率
         uint32_t frameCounter_ = 0;       // 倍率循环计数
+        uint64_t diagCounter_ = 0;        // 诊断日志计数（每 60 帧打印一次）
         bool havePrevBits_ = false;       // 是否已缓存上一帧
 
         std::vector<uint8_t> prevFrameBits_;  // 上一帧 BGRA 像素
         std::vector<uint8_t> curFrameBits_;   // 当前帧 BGRA 像素
+
+        // ---- WM_PAINT 输出帧存储（窗口每次重绘都从最近帧绘制，保证内容不丢） ----
+        std::vector<uint8_t> frameStore_;     // 最近一帧 BGRA 像素（窗口绘制用）
+        uint32_t storeW_ = 0;                 // 存储帧宽
+        uint32_t storeH_ = 0;                 // 存储帧高
+        std::mutex storeMutex_;               // 存储帧锁
+
+        // ---- 帧回调（UI 预览） ----
+        FrameCallback frameCallback_;         // UI 层显示回调（每帧触发）
+
+        // ---- D3D11 swap chain 输出（DirectComposition 合成，虚拟桌面可显示） ----
+        void* swapChain_ = nullptr;           // IDXGISwapChain*
+        bool createSwapChain();               // 创建 swap chain（窗口创建后）
+        void presentSwapChain();              // 帧数据 -> backbuffer -> Present
 
         // ---- 超分辨率（ED-ASR） ----
         bool superResEnabled_ = false;
@@ -131,6 +160,7 @@ namespace Lingjing {
         bool pullQueueFrame();             // 取管线提交的最新帧并读回 CPU 像素
         void presentInterpolated();        // 帧混合插帧并输出到窗口
         void followTargetWindow();         // 输出窗口跟随目标窗口位置/尺寸
+        void paintFrame(HWND hwnd, HDC hdc); // WM_PAINT 绘制最近帧（窗口过程调用）
 
         // ---- GPU 后端（D3D11 着色器混合插帧） ----
         bool initGpuBlend();               // 初始化 D3D11 设备/着色器

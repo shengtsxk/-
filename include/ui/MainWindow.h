@@ -6,6 +6,9 @@
 #include <QMainWindow>
 #include <QSystemTrayIcon>
 #include <memory>
+#include <vector>
+#include <cstdint>
+#include <mutex>
 
 class QStackedWidget;
 class QLabel;
@@ -106,6 +109,7 @@ namespace Lingjing {
             GameListWidget* gameList_ = nullptr;
             ControlPanel* controlPanel_ = nullptr;
             PerformanceGraphWidget* perfGraph_ = nullptr;
+            QLabel* previewLabel_ = nullptr;   // 输出画面内嵌预览（虚拟桌面可合成显示）
 
             // 底部
             QLabel* stateLabel_ = nullptr;
@@ -123,6 +127,15 @@ namespace Lingjing {
 
             // 管线
             FrameGenPipeline* pipeline_ = nullptr;
+
+            // 输出画面预览缓冲（管线线程写入，UI 线程读取，互斥保护）
+            std::vector<uint8_t> previewBuf_;
+            uint32_t previewW_ = 0;
+            uint32_t previewH_ = 0;
+            std::mutex previewMutex_;
+
+            // 预览回调实测输出帧率（静止画面/低帧率捕获时的兜底读数）
+            double previewOutputFps_ = 0.0;
 
             // 更新定时器
             QTimer* updateTimer_ = nullptr;

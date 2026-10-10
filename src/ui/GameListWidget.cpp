@@ -216,6 +216,21 @@ namespace Lingjing {
                 }
             }
 
+            // 恢复上次点击选择并重发选中信号（刷新竞态保护：防止列表
+            // 自动刷新后选中丢失，导致启动时报 "No game selected"）
+            if (hasSelection_ && selectedHash_ != 0) {
+                for (int i = 0; i < listWidget_->count(); ++i) {
+                    QListWidgetItem* it = listWidget_->item(i);
+                    if (it && it->data(Qt::UserRole).toULongLong() == selectedHash_) {
+                        listWidget_->setCurrentItem(it);
+                        emit gameSelected(selectedHash_,
+                            it->data(Qt::UserRole + 2).toString(),
+                            it->data(Qt::UserRole + 1).value<void*>());
+                        break;
+                    }
+                }
+            }
+
             // 更新标题
             titleLabel_->setText(QString("运行中的游戏 (%1)")
                 .arg(games_.size()));
@@ -238,6 +253,10 @@ namespace Lingjing {
             uint64_t hash = item->data(Qt::UserRole).toULongLong();
             void* hwnd = item->data(Qt::UserRole + 1).value<void*>();
             QString name = item->data(Qt::UserRole + 2).toString();
+
+            // 记录已选目标；2 秒自动刷新重建列表后据此恢复并重发选中
+            hasSelection_ = true;
+            selectedHash_ = hash;
 
             emit gameSelected(hash, name, hwnd);
         }

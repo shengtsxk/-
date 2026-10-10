@@ -71,7 +71,7 @@ namespace Lingjing {
             }
 
             // ============================================================
-            // 模块切换条（JEXE 帧生成 / ASESS 超分辨率）
+            // 模块切换条（IRFG 帧生成 / LSR-BN 超分辨率）
             // ============================================================
 
             {
@@ -87,14 +87,14 @@ namespace Lingjing {
                     "QPushButton:checked { background-color: #4A9EFF; border-color: #4A9EFF;"
                     " color: white; }";
 
-                jexeTab_ = new QPushButton("JEXE 帧生成", switcher);
+                jexeTab_ = new QPushButton("IRFG 帧生成", switcher);
                 jexeTab_->setCheckable(true);
                 jexeTab_->setChecked(true);
                 jexeTab_->setCursor(Qt::PointingHandCursor);
                 jexeTab_->setStyleSheet(tabQss);
                 swLayout->addWidget(jexeTab_);
 
-                asessTab_ = new QPushButton("ASESS 超分辨率", switcher);
+                asessTab_ = new QPushButton("LSR-BN 超分辨率", switcher);
                 asessTab_->setCheckable(true);
                 asessTab_->setCursor(Qt::PointingHandCursor);
                 asessTab_->setStyleSheet(tabQss);
@@ -110,7 +110,7 @@ namespace Lingjing {
             }
 
             // ============================================================
-            // 模块堆叠容器（JEXE 页 / ASESS 页）
+            // 模块堆叠容器（IRFG 页 / LSR-BN 页）
             // ============================================================
 
             moduleStack_ = new QStackedWidget(this);
@@ -126,7 +126,7 @@ namespace Lingjing {
                 jl->setSpacing(16);
 
                 // ============================================================
-                // JEXE 帧生成页：插值倍率组
+                // IRFG 帧生成页：插值倍率组
                 // ============================================================
 
                 {
@@ -136,9 +136,9 @@ namespace Lingjing {
                 layout->setSpacing(12);
 
                 // 帧生成总开关（关 = 直通，不插帧）
-                frameGenCheck_ = new QCheckBox("JEXE 帧生成", group);
+                frameGenCheck_ = new QCheckBox("IRFG 帧生成", group);
                 frameGenCheck_->setChecked(true);
-                frameGenCheck_->setToolTip("JEXE 总开关：关闭后不插帧，画面直通显示");
+                frameGenCheck_->setToolTip("IRFG 总开关：关闭后不插帧，画面直通显示");
                 layout->addWidget(frameGenCheck_);
 
                 // 倍率滑块
@@ -330,13 +330,13 @@ namespace Lingjing {
             }
 
             // ============================================================
-            // JEXE 页结束（闭合 jl 布局块）
+            // IRFG 页结束（闭合 jl 布局块）
             // ============================================================
 
             }
 
             // ============================================================
-            // ASESS 超分辨率页
+            // LSR-BN 超分辨率页
             // ============================================================
 
             {
@@ -344,7 +344,7 @@ namespace Lingjing {
                 al->setContentsMargins(0, 0, 0, 0);
                 al->setSpacing(16);
 
-                QGroupBox* group = new QGroupBox("ASESS 超分辨率", asessPage_);
+                QGroupBox* group = new QGroupBox("LSR-BN 超分辨率", asessPage_);
 
                 QVBoxLayout* layout = new QVBoxLayout(group);
                 layout->setSpacing(12);
@@ -352,10 +352,10 @@ namespace Lingjing {
                 {
                     QHBoxLayout* srRow = new QHBoxLayout();
 
-                    superResCheck_ = new QCheckBox("ASESS 超分辨率", group);
+                    superResCheck_ = new QCheckBox("LSR-BN 超分辨率", group);
                     superResCheck_->setChecked(false);
                     superResCheck_->setToolTip(
-                        "ASESS 输出前放大（D3D11 通用加速，无需 Tensor Core），画质明显优于双三次");
+                        "LSR-BN 输出前放大（D3D11 通用加速，无需 Tensor Core），画质明显优于双三次");
                     srRow->addWidget(superResCheck_);
 
                     srRow->addStretch();
@@ -374,8 +374,8 @@ namespace Lingjing {
                 }
 
                 QLabel* info = new QLabel(
-                    "原创边缘引导超分算法（ASESS v2）：8 方向边缘分类 + 边缘强度调制细节 + 振铃抑制。\n"
-                    "无需 Tensor Core / 深度学习。可单独使用，也可与 JEXE 帧生成叠加。",
+                    "原创边缘引导超分算法（LSR-BN v2）：8 方向边缘分类 + 边缘强度调制细节 + 振铃抑制。\n"
+                    "无需 Tensor Core / 深度学习。可单独使用，也可与 IRFG 帧生成叠加。",
                     group);
                 info->setWordWrap(true);
                 info->setStyleSheet("color: #9AA4B4; font-size: 11px;");
@@ -546,7 +546,7 @@ namespace Lingjing {
                 s.setValue("enabled", checked);
                 s.endGroup();
             }
-            LOG_INFO("JEXE frame generation: %s", checked ? "enabled" : "disabled");
+            LOG_INFO("IRFG frame generation: %s", checked ? "enabled" : "disabled");
             emit frameGenToggled(checked);
         }
 
@@ -560,7 +560,7 @@ namespace Lingjing {
                 s.setValue("scale", superResScaleCombo_->currentIndex());
                 s.endGroup();
             }
-            LOG_INFO("ASESS super-resolution: %s (scale=%ux)", checked ? "enabled" : "disabled", scale);
+            LOG_INFO("LSR-BN super-resolution: %s (scale=%ux)", checked ? "enabled" : "disabled", scale);
             emit superResChanged(checked, scale);
         }
 

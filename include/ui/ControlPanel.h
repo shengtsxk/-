@@ -63,7 +63,7 @@ namespace Lingjing {
             void setupUi();
             void applyTheme();
 
-            // 模块切换（JEXE 帧生成 / ASESS 超分辨率）
+            // 模块切换（IRFG 帧生成 / LSR-BN 超分辨率）
             QPushButton* jexeTab_ = nullptr;
             QPushButton* asessTab_ = nullptr;
             QButtonGroup* moduleTabGroup_ = nullptr;

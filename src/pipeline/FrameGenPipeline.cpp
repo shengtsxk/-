@@ -209,6 +209,11 @@ namespace Lingjing {
         }
         presenter_->setMultiplier(config_.frameGenSettings.multiplier);
 
+        // 呈现器创建完成后，把 UI 层此前注册的帧回调绑定上去
+        if (frameCallback_) {
+            presenter_->setFrameCallback(frameCallback_);
+        }
+
         setState(PipelineState::Ready);
 
         LOG_INFO("FrameGenPipeline initialized successfully");
@@ -550,18 +555,18 @@ namespace Lingjing {
             sample.aiRepairMs = genResult.aiMs;
             sample.presentMs = presentMs;
             sample.totalMs = totalMs;
-            // 源帧率 = 捕获帧时间戳间隔；输出帧率 = 管线吞吐（首帧为 0）
+            // 源帧率 = 捕获帧到达间隔（processFrame 实际调用频率，保证真实显示）
             {
+                static thread_local int64_t lastProcNs = 0;
+                const int64_t now = nowNs();
                 float srcFps = 0.0f;
-                if (hasPrevFrame_ && currentFrame.timestampNs > prevFrame_.timestampNs) {
-                    const auto deltaNs = currentFrame.timestampNs -
-                        prevFrame_.timestampNs;
-                    if (deltaNs > 0) {
-                        srcFps = 1e9f / static_cast<float>(deltaNs);
-                    }
+                if (lastProcNs > 0 && now > lastProcNs) {
+                    srcFps = 1e9f / static_cast<float>(now - lastProcNs);
                 }
+                lastProcNs = now;
                 sample.sourceFps = srcFps;
-                sample.outputFps = (totalMs > 0.0f) ? 1000.0f / totalMs : 0.0f;
+                // 输出帧率 = 呈现节奏（与主循环帧间隔一致，无插帧时等于源帧率）
+                sample.outputFps = srcFps;
             }
 
             performanceMonitor_->recordSample(sample);

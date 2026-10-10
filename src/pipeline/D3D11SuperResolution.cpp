@@ -14,15 +14,15 @@ using Microsoft::WRL::ComPtr;
 namespace Lingjing {
 
 // ============================================================================
-// HLSL 内核源码（cs_5_0）— ED-ASR 边缘引导自适应超分辨率
+// HLSL 内核源码（cs_5_0）— ED-ASR+ 边缘引导自适应超分辨率（TAAR v4.5 理念增强）
 //
-// 对每个输出像素：
-//   1) 中心差分亮度梯度 -> 边缘方向（切线 = 垂直梯度方向）
-//   2) 沿切线方向 5-tap 采样（±1、±2 输入纹素，保边缘清晰）
-//   3) 沿法线方向 2-tap 采样（±0.5 输入纹素，平滑去锯齿）
-//   4) 4 角点菱形均值 -> 模糊基线，提取高频细节注入
-//   5) 非锐化掩模微锐化
-// 总纹理采样约 13 次/输出像素，无分支发散（除边界），适合任何 D3D11 GPU。
+// 保持原架构不变（单 compute shader、输入 1 纹理、输出 1 UAV），按 TAAR v4.5
+// 校准框架的理念增强内核算法：
+//   1) 连续边缘方向（atan2 切线，不再量化 8 方向）——边缘更准
+//   2) 各向异性扩散（边缘处切向增强/法向抑制，平坦区各向同性去噪）
+//   3) 场景自适应（3x3 局部方差调制细节/锐化强度）
+//   4) 下采样一致性近似（J_gt_LR 校准：输出向局部均值回拉，抑制过冲振铃）
+// 总采样约 23 次/输出像素，无分支发散（除边界），cs_5_0 全兼容。
 // ============================================================================
 
 static const char* kShaderSrc = R"HLSL(
@@ -33,21 +33,13 @@ cbuffer CBSR : register(b0) {
     uint gPad0;
     float gDetail;
     float gSharp;
-    float gPad1;
-    float gPad2;
+    float gAniso;
+    float gSceneAdapt;
 };
 
 SamplerState gLinear : register(s0);
 Texture2D<float4> gIn : register(t0);
 RWTexture2D<float4> gOut : register(u0);
-
-// 8 方向模板（0°, 45°, 90°, 135°, 180°, 225°, 270°, 315°）
-static const float2 kDir[8] = {
-    float2(1.0f, 0.0f),      float2(0.7071f, 0.7071f),
-    float2(0.0f, 1.0f),      float2(-0.7071f, 0.7071f),
-    float2(-1.0f, 0.0f),     float2(-0.7071f, -0.7071f),
-    float2(0.0f, -1.0f),     float2(0.7071f, -0.7071f),
-};
 
 static float Lum(float4 c) {
     // 纹理 R 通道 = 内存第一字节 = B（蓝）
@@ -59,12 +51,13 @@ void CS_EDASR(uint3 tid : SV_DispatchThreadID) {
     uint2 outPos = tid.xy;
     if (outPos.x >= gOutW || outPos.y >= gOutH) return;
 
-    // 输出归一化 UV == 输入归一化 UV（线性采样）
+    // 输出归一化 UV：输出像素 (x,y) 显示输入 (x/scale, y/scale) 的内容，
+    // 即真正放大 scale 倍。输入纹理与输出纹理同为 width x height，
+    // 因此归一化坐标 = (x+0.5) / (width * scale)。
     float2 srcUV = (float2((float)outPos.x, (float)outPos.y) + float2(0.5f, 0.5f))
-        / float2((float)gOutW, (float)gOutH);
-    // 输入归一化 UV 的单位步长
-    float2 inStep = float2((float)gScale, (float)gScale)
-        / float2((float)gOutW, (float)gOutH);
+        / (float2((float)gOutW, (float)gOutH) * (float)gScale);
+    // 输入 1 纹素在输出归一化空间中的步长（输入纹理宽 = gOutW）
+    float2 inStep = float2(1.0f, 1.0f) / float2((float)gOutW, (float)gOutH);
 
     // ---- 1. 亮度梯度（中心差分） ----
     float lC = Lum(gIn.SampleLevel(gLinear, srcUV, 0.0f));
@@ -75,40 +68,54 @@ void CS_EDASR(uint3 tid : SV_DispatchThreadID) {
     float2 grad = float2(lR - lL, lD - lU) * 0.5f;
     float gMag = length(grad);
 
+    // ---- TAAR v4.5: 连续边缘方向（切线 = 垂直梯度方向） ----
+    float2 nrm = float2(0.0f, 1.0f);
     float2 tanDir = float2(1.0f, 0.0f);
-    float2 normDir = float2(0.0f, 1.0f);
     if (gMag > 1e-4f) {
-        float2 nrm = normalize(grad);
-        // 将梯度方向量化为 8 方向之一（稳定边缘核，避免连续方向抖动）
-        int best = 0;
-        float bestDot = -1.0f;
-        [unroll] for (int d = 0; d < 8; ++d) {
-            float c = dot(nrm, kDir[d]);
-            if (c > bestDot) { bestDot = c; best = d; }
-        }
-        normDir = kDir[best];
-        tanDir = kDir[(best + 2) & 7];   // 垂直方向 = 沿边缘切向
+        nrm = normalize(grad);
+        tanDir = float2(nrm.y, -nrm.x);   // 连续角度切线
     }
 
-    // 边缘强度调制系数：强边缘 -> 细节增强更多；平坦区 -> 抑制噪声放大
+    // 边缘强度调制系数
     float edgeK = smoothstep(0.02f, 0.35f, gMag);
 
-    // ---- 2. 方向自适应采样 ----
+    // ---- TAAR v4.5: 局部亮度方差（3x3）→ 场景自适应 ----
+    float lSum = 0.0f, lSum2 = 0.0f;
+    [unroll] for (int dy = -1; dy <= 1; ++dy) {
+        [unroll] for (int dx = -1; dx <= 1; ++dx) {
+            float lv = Lum(gIn.SampleLevel(gLinear,
+                srcUV + float2((float)dx, (float)dy) * inStep, 0.0f));
+            lSum += lv;
+            lSum2 += lv * lv;
+        }
+    }
+    float mean = lSum / 9.0f;
+    float var = lSum2 / 9.0f - mean * mean;
+    // 0 = 平坦区（去噪），1 = 纹理丰富区（细节增强）
+    float sceneK = smoothstep(0.001f, 0.06f, var);
+
+    // ---- TAAR v4.5: 各向异性扩散系数 ----
+    // 强边缘：切向增强（长核保边缘）、法向抑制（不跨边扩散）
+    // 平坦区：各向同性平滑（去噪）
+    float tanK = lerp(0.55f, 1.45f, edgeK) * lerp(1.0f, gAniso, edgeK);
+    float diffK = lerp(1.00f, 0.15f, edgeK);
+
+    // ---- 2. 各向异性方向采样 ----
     float4 acc = float4(0, 0, 0, 0);
     float wsum = 0.0f;
 
-    // 切向 5-tap：±1、±2 输入纹素（保边缘）
-    [unroll] for (int i = -2; i <= 2; ++i) {
-        float w = 1.0f / (1.0f + (float)abs(i) * 0.45f);
+    // 切向 7-tap：±1、±2、±3 输入纹素（各向异性长核，保边缘清晰）
+    [unroll] for (int i = -3; i <= 3; ++i) {
+        float w = tanK / (1.0f + (float)abs(i) * 0.38f);
         float2 off = tanDir * ((float)i * 1.0f) * inStep;
         acc += gIn.SampleLevel(gLinear, srcUV + off, 0.0f) * w;
         wsum += w;
     }
 
-    // 法向 2-tap：±0.5 输入纹素（去锯齿）
+    // 法向 2-tap：±0.5 输入纹素（扩散被边缘抑制，去锯齿不糊边）
     [unroll] for (int j = -1; j <= 1; j += 2) {
-        float w = 1.0f / (1.0f + (float)abs(j) * 0.8f);
-        float2 off = normDir * ((float)j * 0.5f) * inStep;
+        float w = diffK / (1.0f + (float)abs(j) * 0.9f);
+        float2 off = nrm * ((float)j * 0.5f) * inStep;
         acc += gIn.SampleLevel(gLinear, srcUV + off, 0.0f) * w;
         wsum += w;
     }
@@ -122,14 +129,28 @@ void CS_EDASR(uint3 tid : SV_DispatchThreadID) {
         gIn.SampleLevel(gLinear, srcUV + float2(-1.0f, 1.0f) * inStep, 0.0f) +
         gIn.SampleLevel(gLinear, srcUV + float2(1.0f, 1.0f) * inStep, 0.0f));
 
-    // ---- 4. 高频细节重建（边缘调制 + 振铃抑制） ----
+    // ---- 4. 高频细节重建（场景自适应 + 振铃抑制） ----
     float4 detail = base - blur;
-    // 限制细节幅度，避免强边缘过冲（振铃）
     detail = clamp(detail, float4(-0.25f, -0.25f, -0.25f, 0.0f),
         float4(0.25f, 0.25f, 0.25f, 0.0f));
-    float4 result = base + detail * (gDetail * (0.35f + 0.65f * edgeK));
-    // 非锐化掩模，同样按边缘强度调制
-    result += (result - blur) * (gSharp * (0.20f + 0.80f * edgeK));
+    // 纹理区细节增强、平坦区去噪
+    float detGain = gDetail * (0.35f + 0.65f * edgeK)
+        * lerp(0.35f, 1.25f, sceneK) * lerp(1.0f, gSceneAdapt, sceneK);
+    float4 result = base + detail * detGain;
+
+    // 非锐化掩模（同样场景自适应）
+    float sharpGain = gSharp * (0.20f + 0.80f * edgeK)
+        * lerp(0.55f, 1.10f, sceneK);
+    result += (result - blur) * sharpGain;
+
+    // ---- TAAR v4.5: 下采样一致性近似（J_gt_LR 校准） ----
+    // 输出相对局部均值漂移过大时向均值回拉，抑制过冲/振铃（等价于
+    // 保证放大后局部均值与原输入一致：J_gt_LR 的实时近似）
+    float4 localMean = 0.5f * (blur + gIn.SampleLevel(gLinear, srcUV, 0.0f));
+    float4 drift = result - localMean;
+    drift = clamp(drift, float4(-0.12f, -0.12f, -0.12f, 0.0f),
+        float4(0.12f, 0.12f, 0.12f, 0.0f));
+    result = localMean + drift * lerp(1.0f, 0.82f, edgeK);
 
     gOut[outPos] = result;
 }
@@ -408,13 +429,15 @@ bool D3D11SuperResolution::upscale(
     // 常量
     struct SRCB {
         UINT outW, outH, scale, pad0;
-        float detail, sharp, pad1, pad2;
+        float detail, sharp, aniso, sceneAdapt;
     } cb = {};
     cb.outW = static_cast<UINT>(outW);
     cb.outH = static_cast<UINT>(outH);
     cb.scale = static_cast<UINT>(scale);
     cb.detail = 0.85f;
     cb.sharp = 0.35f;
+    cb.aniso = 1.0f;       // 各向异性扩散强度（TAAR v4.5）
+    cb.sceneAdapt = 1.0f;  // 场景自适应强度（TAAR v4.5）
     ctx->UpdateSubresource(d.cbSR.Get(), 0, nullptr, &cb, 0, 0);
 
     ctx->CSSetConstantBuffers(0, 1, d.cbSR.GetAddressOf());

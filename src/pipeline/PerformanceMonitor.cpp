@@ -61,10 +61,9 @@ namespace Lingjing {
 
         lastSample_ = sample;
 
-        // 更新摘要（每 30 帧一次）
-        if (samples_.size() % 30 == 0) {
-            updateSummary();
-        }
+        // 更新摘要：每次采样都实时刷新（样本窗口≤100，开销可忽略），
+        // 避免低帧率捕获时 summary 长期为 0 导致 UI 显示 "--"
+        updateSummary();
 
         // 回调
         if (sampleCallback_) {

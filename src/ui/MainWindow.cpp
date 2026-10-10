@@ -50,6 +50,7 @@ namespace Lingjing {
         MainWindow::MainWindow(QWidget* parent)
             : QMainWindow(parent)
         {
+            setWindowTitle(QStringLiteral("灵境 Lingjing"));
             setWindowFlags(Qt::FramelessWindowHint | Qt::Window);
             setAttribute(Qt::WA_TranslucentBackground, false);
             setMinimumSize(1280, 800);
@@ -304,9 +305,25 @@ namespace Lingjing {
             panelScroll->setFrameShape(QFrame::NoFrame);
             panelScroll->setStyleSheet("QScrollArea { background: transparent; border: none; } QScrollBar:vertical { background: transparent; width: 6px; } QScrollBar::handle:vertical { background: #2A3240; border-radius: 3px; min-height: 30px; }");
 
+            // 输出画面内嵌预览（虚拟桌面/远程会话可正常合成 Qt 窗口内容；
+            // 独立裸窗口的 GDI/swap chain 内容在该环境不显示，此预览为兜底显示）
+            // 直接挂在主窗口级，帧回调内用主窗口坐标固定右上区域，保证可见
+            previewLabel_ = new QLabel(this);
+            previewLabel_->setAlignment(Qt::AlignCenter);
+            previewLabel_->setAttribute(Qt::WA_AlwaysStackOnTop); // 强制置顶，防被内容区覆盖
+            previewLabel_->setStyleSheet(
+                "background: rgba(16,20,28,235); color: #AAB4C8;"
+                "border: 1px solid #2A3240; border-radius: 8px;"
+                "font-size: 14px;");
+            previewLabel_->setText("输出画面预览");
+            previewLabel_->hide();
+
             QHBoxLayout* centerLayout = new QHBoxLayout(centerArea);
             centerLayout->setContentsMargins(16, 16, 16, 16);
+            centerLayout->setSpacing(12);
             centerLayout->addWidget(panelScroll, 1);
+            // previewLabel_ 不加入布局：由帧回调手工定位（避免布局把预览
+            // 挤到窗口边缘外导致虚拟桌面不可见）
 
             rightLayout->addWidget(centerArea, 1);
 
@@ -550,6 +567,59 @@ namespace Lingjing {
             pipeline_ = pipeline;
 
             if (pipeline_) {
+                // 帧回调：输出画面内嵌预览（管线线程深拷贝到缓冲，UI 线程显示）
+                pipeline_->setFrameCallback(
+                    [this](const uint8_t* rgba, uint32_t w, uint32_t h) {
+                        if (!rgba || w == 0 || h == 0) return;
+                        LOG_INFO("[Preview] frameCallback w=%u h=%u", w, h);
+                        // 管线线程：拷贝帧数据（回调返回后源内存即失效，必须同步复制）
+                        {
+                            std::lock_guard<std::mutex> lk(previewMutex_);
+                            previewW_ = w;
+                            previewH_ = h;
+                            previewBuf_.assign(rgba, rgba + (size_t)w * h * 4);
+                        }
+                        QMetaObject::invokeMethod(this, [this]() {
+                            LOG_INFO("[Preview] ui-thread update begin");
+                            // 预览回调实测输出帧率（按回调间隔）
+                            {
+                                static qint64 lastFpsNs = 0;
+                                const qint64 nowNs = QDateTime::currentMSecsSinceEpoch();
+                                if (lastFpsNs > 0 && nowNs > lastFpsNs) {
+                                    previewOutputFps_ = 1000.0 / (nowNs - lastFpsNs);
+                                }
+                                lastFpsNs = nowNs;
+                            }
+                            std::lock_guard<std::mutex> lk(previewMutex_);
+                            if (!previewLabel_ || previewBuf_.empty()) {
+                                LOG_INFO("[Preview] ui-thread skip: empty buf or no label");
+                                return;
+                            }
+                            QImage img(previewBuf_.data(), (int)previewW_, (int)previewH_,
+                                (int)previewW_ * 4, QImage::Format_RGB32);
+                            QPixmap pm = QPixmap::fromImage(img);  // 深拷贝出缓冲
+                            int cw = previewLabel_->width();
+                            int ch = previewLabel_->height();
+                            if (cw > 20 && ch > 20) {
+                                pm = pm.scaled(cw - 8, ch - 8,
+                                    Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                            }
+                            previewLabel_->setPixmap(pm);
+                            previewLabel_->show();
+                            // 主窗口级右上区域；高度避到底部按钮区之上，防止覆盖启动/暂停/停止
+                            int pw = qMin(640, width() * 2 / 5);
+                            int ph = height() - 260;
+                            if (pw > 80 && ph > 80) {
+                                previewLabel_->setGeometry(width() - pw - 16, 100, pw, ph);
+                            }
+                            previewLabel_->raise();
+                            previewLabel_->update();
+                            LOG_INFO("[Preview] ui-thread update done cw=%d ch=%d vis=%d pm=%dx%d pos=(%d,%d)",
+                                cw, ch, (int)previewLabel_->isVisible(),
+                                pm.width(), pm.height(),
+                                previewLabel_->x(), previewLabel_->y());
+                        });
+                    });
                 // 状态回调：同步到 UI 状态标签
                 pipeline_->setStateChangeCallback(
                     [this](PipelineState /*oldState*/, PipelineState newState) {
@@ -564,8 +634,11 @@ namespace Lingjing {
                         // 错误状态由错误回调显示具体信息，这里直接返回不覆盖
                         case PipelineState::Error:
                             return;
+                        }
 
                         QMetaObject::invokeMethod(this, [this, text, newState]() {
+                            LOG_INFO("[StateUI] update text=%s state=%d label=%p", 
+                                text.toUtf8().constData(), (int)newState, (void*)stateLabel_);
                             if (stateLabel_) {
                                 stateLabel_->setText(text);
                                 if (text == "错误") {
@@ -597,7 +670,6 @@ namespace Lingjing {
                                 }
                             }
                         }, Qt::QueuedConnection);
-                    }
                 });
 
                 // 错误回调：在 UI 上显示具体错误信息
@@ -661,6 +733,9 @@ namespace Lingjing {
         // ============================================================================
 
         void MainWindow::onStartClicked() {
+            LOG_INFO("[StartBtn] clicked pipeline=%p selectedHwnd=%p state=%d",
+                (void*)pipeline_, (void*)selectedGameHwnd_,
+                pipeline_ ? (int)pipeline_->state() : -1);
             if (!pipeline_) {
                 LOG_WARN("No pipeline attached");
                 return;
@@ -802,20 +877,26 @@ namespace Lingjing {
 
             auto stats = pipeline_->stats();
 
+            // 兜底：管线统计缺失（静止画面/低帧率捕获）时用预览回调实测帧率
+            double srcFps = (stats.currentSourceFps > 0.0f)
+                ? stats.currentSourceFps : previewOutputFps_;
+            double outFps = (stats.currentOutputFps > 0.0f)
+                ? stats.currentOutputFps : previewOutputFps_;
+
             if (sourceFpsLabel_) {
-                if (stats.currentSourceFps <= 0.0f) {
+                if (srcFps <= 0.0) {
                     sourceFpsLabel_->setText("源: -- FPS");
                 } else {
                     sourceFpsLabel_->setText(QString("源: %1 FPS")
-                        .arg(static_cast<int>(stats.currentSourceFps)));
+                        .arg(static_cast<int>(srcFps + 0.5)));
                 }
             }
             if (outputFpsLabel_) {
-                if (stats.currentOutputFps <= 0.0f) {
+                if (outFps <= 0.0) {
                     outputFpsLabel_->setText("输出: -- FPS");
                 } else {
                     outputFpsLabel_->setText(QString("输出: %1 FPS")
-                        .arg(static_cast<int>(stats.currentOutputFps)));
+                        .arg(static_cast<int>(outFps + 0.5)));
                 }
             }
         }

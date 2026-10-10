@@ -1,4 +1,4 @@
-﻿# ============================================================================
+# ============================================================================
 # 灵境 Lingjing — 完整 CMake 构建配置
 #
 # 支持：
@@ -16,7 +16,7 @@ cmake_minimum_required(VERSION 3.24)
 # ============================================================================
 
 project(Lingjing
-    VERSION 1.4.0
+    VERSION 1.4.5
     DESCRIPTION "灵境 Lingjing - 通用游戏帧生成软件"
     HOMEPAGE_URL "https://github.com/lingjing-project/lingjing"
     LANGUAGES CXX C)
