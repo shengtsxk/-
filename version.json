@@ -1,5 +1,5 @@
 {
-    "download_url":  "Lingjing-v1.4.6-setup.exe",
-    "latest_version":  "1.4.6",
-    "notes":  "v1.4.6：修复学习功能社区模型下载链路（jsDelivr不可用改为GitHub raw直连）；帧生成IRFG/超分辨率LSR-BN模块。"
+    "download_url":  "Lingjing-v1.4.7-setup.exe",
+    "latest_version":  "1.4.7",
+    "notes":  "v1.4.7：学习功能社区模型下载链路改用GitHub Contents API（jsDelivr/raw不可靠）；帧生成IRFG/超分辨率LSR-BN。"
 }
