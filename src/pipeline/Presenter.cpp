@@ -153,7 +153,7 @@ namespace Lingjing {
         hOutputWnd_ = CreateWindowExW(
             WS_EX_TOPMOST | WS_EX_NOACTIVATE,
             L"LingjingOutputWnd", L"灵境 输出画面",
-            WS_OVERLAPPEDWINDOW,
+            WS_POPUP,  // 无边框：客户区 = 指定尺寸 = 游戏分辨率（1:1 无损输出）
             posX, posY, wndW, wndH,
             nullptr, nullptr, hInst, nullptr);
 

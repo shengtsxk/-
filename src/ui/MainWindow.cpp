@@ -746,7 +746,14 @@ namespace Lingjing {
             }
 
             // 首次启动：初始化管线（读取用户设置，替代硬编码）
-            if (pipeline_->state() == PipelineState::Uninitialized) {
+            // 捕获失败进入 Error 后再次点击：自动重置并重新初始化（可恢复）
+            if (pipeline_->state() == PipelineState::Uninitialized ||
+                pipeline_->state() == PipelineState::Error)
+            {
+                if (pipeline_->state() == PipelineState::Error) {
+                    LOG_INFO("[StartBtn] recovering from error state, reinitializing");
+                    pipeline_->shutdown();
+                }
                 QSettings settings;
 
                 PipelineConfig cfg;
@@ -763,6 +770,9 @@ namespace Lingjing {
                 cfg.frameGenSettings.enabled =
                     controlPanel_ ? controlPanel_->isFrameGenEnabled()
                     : settings.value("frame_gen/enabled", true).toBool();
+                LOG_INFO("[StartBtn] frameGenEnabled=%d multiplier=%u superResEnabled=%d scale=%u",
+                    (int)cfg.frameGenSettings.enabled, cfg.frameGenSettings.multiplier,
+                    (int)cfg.presentConfig.superResEnabled, cfg.presentConfig.superResScale);
 
                 // 超分辨率（ED-ASR）：独立开关 + 倍率
                 if (controlPanel_) {

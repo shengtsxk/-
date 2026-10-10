@@ -655,7 +655,29 @@ namespace Lingjing {
         }
 
         try {
-            impl_->session.StartCapture();
+            // StartCapture 偶发失败（窗口刚切换/合成器忙）：自动重试最多 3 次
+            winrt::hresult lastHr;
+            bool started = false;
+            for (int attempt = 0; attempt < 3; ++attempt) {
+                try {
+                    impl_->session.StartCapture();
+                    started = true;
+                    break;
+                }
+                catch (winrt::hresult_error const& e) {
+                    lastHr = e.code();
+                    if (attempt < 2) {
+                        LOG_WARN("WGCCapture: StartCapture attempt %d failed (0x%08X), retrying...",
+                            attempt + 1, (uint32_t)lastHr);
+                        std::this_thread::sleep_for(std::chrono::milliseconds(600));
+                    }
+                }
+            }
+            if (!started) {
+                impl_->notifyError(ErrorCode::CaptureInitFailed,
+                    "StartCapture failed after retries");
+                return false;
+            }
             LOG_INFO("WGCCapture started");
 
             if (impl_->stateCallback) {
