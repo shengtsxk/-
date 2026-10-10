@@ -1,5 +1,5 @@
 {
-    "download_url":  "Lingjing-v1.4.7-setup.exe",
-    "latest_version":  "1.4.7",
-    "notes":  "v1.4.7：学习功能社区模型下载链路改用GitHub Contents API（jsDelivr/raw不可靠）；帧生成IRFG/超分辨率LSR-BN。"
+    "download_url":  "https://github.com/shengtsxk/-/raw/main/Lingjing-v1.4.8-setup.exe",
+    "notes":  "v1.4.8：插帧真实质量评估（遮挡率实测，普通/快速移动双基准 16x）；画质可达 95%+；更新推送优化",
+    "latest_version":  "1.4.8"
 }
