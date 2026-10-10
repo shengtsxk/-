@@ -1,6 +1,6 @@
 ﻿; 灵境 Lingjing 安装脚本 (Inno Setup)
 #define MyAppName "灵境Lingjing"
-#define MyAppVersion "1.4.5"
+#define MyAppVersion "1.4.6"
 #define MyAppPublisher "LingjingProject"
 #define MyAppExeName "Lingjing.exe"
 #define MyAppIcon "D:\lingjing\assets\icons\app.ico"

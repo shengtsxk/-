@@ -957,7 +957,7 @@ namespace Lingjing {
 
         void SettingsDialog::onDownloadCommunityModels() {
             const QUrl listUrl(
-                "https://cdn.jsdelivr.net/gh/shengtsxk/-@main/models/models.json");
+                "https://raw.githubusercontent.com/shengtsxk/-/main/models/models.json");
             auto* nam = new QNetworkAccessManager(this);
             QNetworkRequest req{ listUrl };
             req.setTransferTimeout(15000);
@@ -1009,7 +1009,7 @@ namespace Lingjing {
                     if (file.isEmpty()) return;
 
                     // 下载模型文件到临时目录
-                    QUrl fileUrl(QString("https://cdn.jsdelivr.net/gh/shengtsxk/-@main/models/%1")
+                    QUrl fileUrl(QString("https://raw.githubusercontent.com/shengtsxk/-/main/models/%1")
                         .arg(file));
                     auto* nam2 = new QNetworkAccessManager(this);
                     QNetworkRequest req2{ fileUrl };
