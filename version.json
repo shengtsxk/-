@@ -1,5 +1,5 @@
 {
-    "download_url":  "Lingjing-v1.4.5-setup.exe",
-    "latest_version":  "1.4.5",
-    "notes":  "v1.4.5：帧生成模块更名IRFG、超分辨率模块更名LSR-BN；修复状态栏不更新与停止/暂停按钮无效（状态回调invokeMethod误置switch内导致不可达）；修复延迟恒为0（性能摘要改为每次采样实时刷新）；修复源帧率不显示（预览回调实测帧率兜底）；TAAR v4.5增强超分内核。"
+    "download_url":  "Lingjing-v1.4.6-setup.exe",
+    "latest_version":  "1.4.6",
+    "notes":  "v1.4.6：修复学习功能社区模型下载链路（jsDelivr不可用改为GitHub raw直连）；帧生成IRFG/超分辨率LSR-BN模块。"
 }
