@@ -1,5 +1,5 @@
 {
-    "download_url":  "https://github.com/shengtsxk/-/raw/main/Lingjing-v1.4.8-setup.exe",
-    "notes":  "v1.4.8：插帧真实质量评估（遮挡率实测，普通/快速移动双基准 16x）；画质可达 95%+；更新推送优化",
-    "latest_version":  "1.4.8"
+    "download_url":  "https://github.com/shengtsxk/-/raw/main/Lingjing-v1.4.9-setup.exe",
+    "notes":  "v1.4.9：输出窗口无边框1:1（游戏分辨率即输出分辨率，无损）；捕获失败自动重试；报错后可恢复重启",
+    "latest_version":  "1.4.9"
 }
