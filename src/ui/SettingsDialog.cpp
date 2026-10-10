@@ -957,10 +957,11 @@ namespace Lingjing {
 
         void SettingsDialog::onDownloadCommunityModels() {
             const QUrl listUrl(
-                "https://raw.githubusercontent.com/shengtsxk/-/main/models/models.json");
+                "https://api.github.com/repos/shengtsxk/-/contents/models/models.json");
             auto* nam = new QNetworkAccessManager(this);
             QNetworkRequest req{ listUrl };
             req.setTransferTimeout(15000);
+            req.setRawHeader("User-Agent", "Lingjing/" LINGJING_VERSION_STRING);
             auto* reply = nam->get(req);
             connect(reply, &QNetworkReply::finished, this,
                 [this, reply]() {
@@ -972,7 +973,22 @@ namespace Lingjing {
                         return;
                     }
 
-                    QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
+                    // GitHub Contents API：正文为 Base64，需先解码
+                    QJsonParseError perr;
+                    QJsonDocument wrap = QJsonDocument::fromJson(reply->readAll(), &perr);
+                    if (perr.error != QJsonParseError::NoError || !wrap.isObject()) {
+                        QMessageBox::warning(this, "下载失败",
+                            "社区模型清单解析失败。");
+                        return;
+                    }
+                    const QByteArray decoded = QByteArray::fromBase64(
+                        wrap.object().value("content").toString().toUtf8());
+                    QJsonDocument doc = QJsonDocument::fromJson(decoded, &perr);
+                    if (perr.error != QJsonParseError::NoError || !doc.isObject()) {
+                        QMessageBox::warning(this, "下载失败",
+                            "社区模型清单解码失败。");
+                        return;
+                    }
                     QJsonArray models = doc.object().value("models").toArray();
                     if (models.isEmpty()) {
                         QMessageBox::information(this, "社区模型",
@@ -1008,12 +1024,13 @@ namespace Lingjing {
                     QString file = o.value("file").toString();
                     if (file.isEmpty()) return;
 
-                    // 下载模型文件到临时目录
-                    QUrl fileUrl(QString("https://raw.githubusercontent.com/shengtsxk/-/main/models/%1")
+                    // 下载模型文件（Contents API，Base64 解码后写入临时文件）
+                    QUrl fileUrl(QString("https://api.github.com/repos/shengtsxk/-/contents/models/%1")
                         .arg(file));
                     auto* nam2 = new QNetworkAccessManager(this);
                     QNetworkRequest req2{ fileUrl };
                     req2.setTransferTimeout(60000);
+                    req2.setRawHeader("User-Agent", "Lingjing/" LINGJING_VERSION_STRING);
                     auto* reply2 = nam2->get(req2);
                     connect(reply2, &QNetworkReply::finished, this,
                         [this, reply2, nam2, file]() {
@@ -1024,7 +1041,15 @@ namespace Lingjing {
                                     "模型下载失败：\n" + reply2->errorString());
                                 return;
                             }
-                            const QByteArray data = reply2->readAll();
+                            QJsonParseError perr2;
+                            QJsonDocument wrap2 = QJsonDocument::fromJson(reply2->readAll(), &perr2);
+                            if (perr2.error != QJsonParseError::NoError || !wrap2.isObject()) {
+                                QMessageBox::warning(this, "下载失败",
+                                    "模型文件解析失败。");
+                                return;
+                            }
+                            const QByteArray data = QByteArray::fromBase64(
+                                wrap2.object().value("content").toString().toUtf8());
                             const QString tmp = QStandardPaths::writableLocation(
                                 QStandardPaths::TempLocation)
                                 + "/lingjing_community_model.ljm";
