@@ -185,7 +185,7 @@ int main(int argc, char* argv[]) {
     app.setApplicationDisplayName("灵境");
     app.setOrganizationName("LingjingProject");
     app.setOrganizationDomain("lingjing.dev");
-    app.setApplicationVersion("1.4.7");
+    app.setApplicationVersion("1.4.8");
 
     // 应用图标（青鸾）
     QIcon appIcon("assets/icons/qingluan.png");
@@ -362,54 +362,84 @@ int main(int argc, char* argv[]) {
             {
                 Lingjing::D3D11FrameInterpolator interp;
                 if (interp.initialize()) {
-                    const int bw = 1280, bh = 720, bn = 4;
-                    std::vector<uint8_t> f0((size_t)bw * bh * 4);
-                    std::vector<uint8_t> f1((size_t)bw * bh * 4);
-                    for (int y = 0; y < bh; ++y) {
-                        for (int x = 0; x < bw; ++x) {
-                            size_t idx = ((size_t)y * bw + x) * 4;
-                            uint8_t g = (uint8_t)((x * 255) / bw);
-                            f0[idx + 0] = g; f0[idx + 1] = g / 2; f0[idx + 2] = (uint8_t)(255 - g); f0[idx + 3] = 255;
-                            // f1 在 f0 基础上右移白色方块（模拟运动）
-                            f1[idx + 0] = g; f1[idx + 1] = g / 2; f1[idx + 2] = (uint8_t)(255 - g); f1[idx + 3] = 255;
-                        }
-                    }
-                    int sq = 120;
-                    int step = 80;
-                    for (int y = bh / 2 - sq; y < bh / 2 + sq; ++y) {
-                        for (int x = bw / 4 - sq + step; x < bw / 4 + sq + step; ++x) {
-                            if (x >= 0 && x < bw && y >= 0 && y < bh) {
+                    const int bw = 1280, bh = 720, bn = 16;
+                    auto makeFrames = [&](int stepPx, int sq,
+                        std::vector<uint8_t>& f0, std::vector<uint8_t>& f1) {
+                        f0.assign((size_t)bw * bh * 4, 0);
+                        f1.assign((size_t)bw * bh * 4, 0);
+                        for (int y = 0; y < bh; ++y) {
+                            for (int x = 0; x < bw; ++x) {
                                 size_t idx = ((size_t)y * bw + x) * 4;
-                                f1[idx + 0] = 255; f1[idx + 1] = 255; f1[idx + 2] = 255; f1[idx + 3] = 255;
+                                uint8_t g = (uint8_t)((x * 255) / bw);
+                                f0[idx + 0] = g; f0[idx + 1] = g / 2; f0[idx + 2] = (uint8_t)(255 - g); f0[idx + 3] = 255;
+                                f1[idx + 0] = g; f1[idx + 1] = g / 2; f1[idx + 2] = (uint8_t)(255 - g); f1[idx + 3] = 255;
                             }
                         }
-                    }
+                        auto drawSq = [&](std::vector<uint8_t>& fr, int cx, int cy) {
+                            for (int y = cy - sq; y < cy + sq; ++y) {
+                                for (int x = cx - sq; x < cx + sq; ++x) {
+                                    if (x >= 0 && x < bw && y >= 0 && y < bh) {
+                                        size_t idx = ((size_t)y * bw + x) * 4;
+                                        fr[idx + 0] = 255; fr[idx + 1] = 255; fr[idx + 2] = 255; fr[idx + 3] = 255;
+                                    }
+                                }
+                            }
+                        };
+                        drawSq(f0, bw / 4, bh / 2);
+                        drawSq(f1, bw / 4 + stepPx, bh / 2);
+                    };
+
+                    std::vector<uint8_t> f0, f1;
                     std::vector<std::vector<uint8_t>> out;
                     float fms = 0, gms = 0, q = 0;
-                    // 预热
-                    interp.generateFrames(f0.data(), f1.data(), bw, bh, bn, out, fms, gms, q);
-                    double sumFlow = 0, sumGen = 0, sumTotal = 0;
+
+                    // 场景 A：普通移动（方块右移 80px）
+                    makeFrames(80, 120, f0, f1);
+                    interp.generateFrames(f0.data(), f1.data(), bw, bh, bn, out, fms, gms, q); // 预热
+                    double sumFlow = 0, sumGen = 0, sumTotal = 0, sumQ = 0, sumMag = 0;
                     int iters = 8;
                     for (int i = 0; i < iters; ++i) {
                         if (interp.generateFrames(f0.data(), f1.data(), bw, bh, bn, out, fms, gms, q)) {
                             sumFlow += fms; sumGen += gms;
                             sumTotal += interp.lastTotalMs();
+                            sumQ += interp.lastQuality();
+                            sumMag += interp.lastMotionMag();
                         }
                     }
-                    LOG_INFO("[Bench] 1280x720 multiplier=%d iters=%d avgFlow=%.2fms avgGen=%.2fms avgTotal=%.2fms quality=%.2f",
-                        bn, iters, sumFlow / iters, sumGen / iters, sumTotal / iters, q);
+                    LOG_INFO("[Bench-Normal] 1280x720 multiplier=%d iters=%d avgFlow=%.2fms avgGen=%.2fms avgTotal=%.2fms quality=%.3f motion=%.2fpx",
+                        bn, iters, sumFlow / iters, sumGen / iters, sumTotal / iters,
+                        sumQ / iters, sumMag / iters);
+
+                    // 场景 B：快速移动（方块右移 320px，16 倍插帧极限场景）
+                    makeFrames(320, 120, f0, f1);
+                    sumFlow = 0; sumGen = 0; sumTotal = 0; sumQ = 0; sumMag = 0;
+                    for (int i = 0; i < iters; ++i) {
+                        if (interp.generateFrames(f0.data(), f1.data(), bw, bh, bn, out, fms, gms, q)) {
+                            sumFlow += fms; sumGen += gms;
+                            sumTotal += interp.lastTotalMs();
+                            sumQ += interp.lastQuality();
+                            sumMag += interp.lastMotionMag();
+                        }
+                    }
+                    LOG_INFO("[Bench-Fast] 1280x720 multiplier=%d iters=%d avgFlow=%.2fms avgGen=%.2fms avgTotal=%.2fms quality=%.3f motion=%.2fpx",
+                        bn, iters, sumFlow / iters, sumGen / iters, sumTotal / iters,
+                        sumQ / iters, sumMag / iters);
 
                     // 保存基准帧用于画面验证
                     {
+                        makeFrames(80, 120, f0, f1);
                         QImage imgF0(f0.data(), bw, bh, bw * 4, QImage::Format_RGB32);
                         QImage imgF1(f1.data(), bw, bh, bw * 4, QImage::Format_RGB32);
                         imgF0.save(QStringLiteral("D:/lingjing/bench_f0.png"));
                         imgF1.save(QStringLiteral("D:/lingjing/bench_f1.png"));
+                        interp.generateFrames(f0.data(), f1.data(), bw, bh, bn, out, fms, gms, q);
                         if (out.size() >= 2) {
                             QImage imgM0(out[0].data(), bw, bh, bw * 4, QImage::Format_RGB32);
-                            QImage imgM1(out[1].data(), bw, bh, bw * 4, QImage::Format_RGB32);
+                            QImage imgM8(out[8].data(), bw, bh, bw * 4, QImage::Format_RGB32);
+                            QImage imgM15(out[15].data(), bw, bh, bw * 4, QImage::Format_RGB32);
                             imgM0.save(QStringLiteral("D:/lingjing/bench_mid0.png"));
-                            imgM1.save(QStringLiteral("D:/lingjing/bench_mid1.png"));
+                            imgM8.save(QStringLiteral("D:/lingjing/bench_mid8.png"));
+                            imgM15.save(QStringLiteral("D:/lingjing/bench_mid15.png"));
                         }
                     }
                 } else {

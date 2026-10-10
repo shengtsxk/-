@@ -46,6 +46,10 @@ public:
     float lastGenMs() const { return lastGenMs_; }
     float lastTotalMs() const { return lastTotalMs_; }
 
+    // 真实质量与运动幅度查询（每 qualityStatEveryN 帧实测一次）
+    float lastQuality() const { return lastQuality_; }
+    float lastMotionMag() const { return lastMotionMag_; }
+
 private:
     struct Impl;
     Impl* impl_ = nullptr;
@@ -54,6 +58,8 @@ private:
     float lastFlowMs_ = 0.0f;
     float lastGenMs_ = 0.0f;
     float lastTotalMs_ = 0.0f;
+    float lastQuality_ = 0.0f;
+    float lastMotionMag_ = 0.0f;
 };
 
 } // namespace Lingjing

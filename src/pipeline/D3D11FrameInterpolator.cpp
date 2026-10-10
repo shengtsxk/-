@@ -227,10 +227,17 @@ struct D3D11FrameInterpolator::Impl {
     ComPtr<ID3D11ShaderResourceView> srvZeroFlow;
     uint32_t zeroW = 0, zeroH = 0;
 
-    // 遮挡
+    // 遮挡（全尺寸，供混合）
     ComPtr<ID3D11Texture2D> texOcc;
     ComPtr<ID3D11ShaderResourceView> srvOcc;
     ComPtr<ID3D11UnorderedAccessView> uavOcc;
+
+    // 小尺寸遮挡（1/4，供质量统计读回）
+    ComPtr<ID3D11Texture2D> texOccSmall;
+    ComPtr<ID3D11ShaderResourceView> srvOccSmall;
+    ComPtr<ID3D11UnorderedAccessView> uavOccSmall;
+    ComPtr<ID3D11Texture2D> stagingOccSmall;   // 读回（复用）
+    ComPtr<ID3D11Texture2D> stagingFlowSmall;  // 1/4 光流读回（复用）
 
     // 多帧输出
     std::vector<ComPtr<ID3D11Texture2D>> texOut;
@@ -252,6 +259,8 @@ struct D3D11FrameInterpolator::Impl {
         for (auto& l : bwd) { l.tex.Reset(); l.srv.Reset(); l.uav.Reset(); l.w = 0; l.h = 0; }
         texZeroFlow.Reset(); srvZeroFlow.Reset();
         texOcc.Reset(); srvOcc.Reset(); uavOcc.Reset();
+        texOccSmall.Reset(); srvOccSmall.Reset(); uavOccSmall.Reset();
+        stagingOccSmall.Reset(); stagingFlowSmall.Reset();
         texOut.clear(); uavOut.clear(); srvOut.clear(); stagingOut.clear();
         numFramesCached = 0;
         sizeReady = false;
@@ -578,6 +587,27 @@ bool D3D11FrameInterpolator::generateFrames(
             return false;
         }
 
+        // 小尺寸遮挡（1/2，质量统计读回用；1/2 层光流已被求解，数据真实）
+        {
+            const uint32_t sw = (width + 1) / 2;
+            const uint32_t sh = (height + 1) / 2;
+            if (!g.makeWritableTexture(sw, sh, DXGI_FORMAT_R32_FLOAT,
+                g.texOccSmall, g.srvOccSmall, g.uavOccSmall))
+            {
+                return false;
+            }
+            auto mkStaging = [&](ComPtr<ID3D11Texture2D>& stg, uint32_t w, uint32_t h,
+                DXGI_FORMAT fmt) -> bool {
+                D3D11_TEXTURE2D_DESC std = {};
+                std.Width = w; std.Height = h; std.MipLevels = 1; std.ArraySize = 1;
+                std.Format = fmt; std.SampleDesc.Count = 1;
+                std.Usage = D3D11_USAGE_STAGING;
+                std.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
+                return SUCCEEDED(g.device->CreateTexture2D(&std, nullptr, &stg));
+            };
+            if (!mkStaging(g.stagingOccSmall, sw, sh, DXGI_FORMAT_R32_FLOAT)) return false;
+            if (!mkStaging(g.stagingFlowSmall, sw, sh, DXGI_FORMAT_R32G32_FLOAT)) return false;
+        }
         // 多帧输出（N 个 UAV）
         for (int i = 0; i < numFrames; ++i) {
             ComPtr<ID3D11Texture2D> tex;
@@ -723,6 +753,21 @@ bool D3D11FrameInterpolator::generateFrames(
         ctx->CSSetUnorderedAccessViews(0, 1, &nu, nullptr);
     }
 
+    // ---- 小尺寸一致性（1/2，质量统计；fwd[1]/bwd[1] 已被求解）----
+    {
+        const uint32_t sw = (width + 1) / 2;
+        const uint32_t sh = (height + 1) / 2;
+        setCB(ctx, g.cbMain.Get(), sw, sh, 0, 0, 0, 0, 0);
+        ID3D11ShaderResourceView* s[] = { g.fwd[1].srv.Get(), g.bwd[1].srv.Get() };
+        ctx->CSSetShader(g.csConsistency.Get(), nullptr, 0);
+        ctx->CSSetShaderResources(0, 2, s);
+        ID3D11UnorderedAccessView* u = g.uavOccSmall.Get();
+        ctx->CSSetUnorderedAccessViews(0, 1, &u, nullptr);
+        ctx->Dispatch((sw + 15) / 16, (sh + 15) / 16, 1);
+        ID3D11UnorderedAccessView* nu = nullptr;
+        ctx->CSSetUnorderedAccessViews(0, 1, &nu, nullptr);
+    }
+
     // ---- 多帧 warp + 混合 ----
     auto tGenStart = std::chrono::steady_clock::now();
 
@@ -772,9 +817,63 @@ bool D3D11FrameInterpolator::generateFrames(
     lastGenMs_ = genMs;
     lastTotalMs_ = std::chrono::duration<float, std::milli>(tEnd - t0).count();
 
-    // 质量估算：遮挡率 + 光流幅值稳定性（简化，0.85~1.0）
-    // 遮挡像素比例越低，质量越高
-    quality = 0.95f;
+    // ---- 真实质量统计（每 15 帧一次：读回 1/4 遮挡 + 1/4 光流）----
+    // 遮挡率越低质量越高；运动幅度由光流幅值均值衡量（区分静止/快速移动）
+    {
+        static thread_local int statCounter = 0;
+        const bool doStat = (++statCounter % 15 == 0) || lastQuality_ <= 0.0f;
+        if (doStat) {
+            const uint32_t sw = (width + 1) / 2;
+            const uint32_t sh = (height + 1) / 2;
+            const size_t nPix = (size_t)sw * sh;
+
+            // 1) 遮挡统计
+            double occSum = 0.0;
+            ctx->CopyResource(g.stagingOccSmall.Get(), g.texOccSmall.Get());
+            D3D11_MAPPED_SUBRESOURCE mo = {};
+            if (SUCCEEDED(ctx->Map(g.stagingOccSmall.Get(), 0, D3D11_MAP_READ, 0, &mo))) {
+                const uint8_t* src = static_cast<const uint8_t*>(mo.pData);
+                for (uint32_t y = 0; y < sh; ++y) {
+                    const float* row = reinterpret_cast<const float*>(src + (size_t)y * mo.RowPitch);
+                    for (uint32_t x = 0; x < sw; ++x) {
+                        float v = row[x];
+                        if (v > 1.0f) v = 1.0f;
+                        occSum += v;
+                    }
+                }
+                ctx->Unmap(g.stagingOccSmall.Get(), 0);
+            }
+
+            // 2) 光流幅度统计（1/2 前向流）
+            double magSum = 0.0;
+            ctx->CopyResource(g.stagingFlowSmall.Get(), g.fwd[1].tex.Get());
+            D3D11_MAPPED_SUBRESOURCE mf = {};
+            if (SUCCEEDED(ctx->Map(g.stagingFlowSmall.Get(), 0, D3D11_MAP_READ, 0, &mf))) {
+                const uint8_t* src = static_cast<const uint8_t*>(mf.pData);
+                for (uint32_t y = 0; y < sh; ++y) {
+                    const float* row = reinterpret_cast<const float*>(src + (size_t)y * mf.RowPitch);
+                    for (uint32_t x = 0; x < sw; ++x) {
+                        const float vx = row[(size_t)x * 2 + 0];
+                        const float vy = row[(size_t)x * 2 + 1];
+                        magSum += sqrtf(vx * vx + vy * vy);
+                    }
+                }
+                ctx->Unmap(g.stagingFlowSmall.Get(), 0);
+            }
+
+            const double avgOcc = nPix > 0 ? occSum / (double)nPix : 0.0;
+            const double avgMag = nPix > 0 ? magSum / (double)nPix : 0.0;
+            // 遮挡率 → 质量（0.05 遮挡 ≈ 0.90；0.025 ≈ 0.95）
+            float q = static_cast<float>(1.0 - avgOcc * 2.0);
+            if (q < 0.0f) q = 0.0f;
+            if (q > 1.0f) q = 1.0f;
+            lastQuality_ = q;
+            lastMotionMag_ = static_cast<float>(avgMag);
+            LOG_INFO("[Interp-Q] occ=%.4f motionMag=%.2fpx quality=%.3f",
+                avgOcc, avgMag, q);
+        }
+        quality = lastQuality_;
+    }
 
     return true;
 }
