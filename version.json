@@ -1,5 +1,5 @@
-﻿{
-    "download_url":  "Lingjing-v1.4.1-setup.exe",
-    "latest_version":  "1.4.1",
-    "notes":  "v1.4.1：修复ASESS超分真正失效——ED-ASR着色器UV映射未除以倍率导致输出与输入1:1（无放大），已修正为真正scale倍放大；修复GPU同步黑屏；源帧尺寸与输出基准分离（画面不再缩小错位）；游戏列表点击后暂停刷新（目标选中稳定）；超分区域化输出性能提升。"
+{
+    "download_url":  "Lingjing-v1.4.5-setup.exe",
+    "latest_version":  "1.4.5",
+    "notes":  "v1.4.5：帧生成模块更名IRFG、超分辨率模块更名LSR-BN；修复状态栏不更新与停止/暂停按钮无效（状态回调invokeMethod误置switch内导致不可达）；修复延迟恒为0（性能摘要改为每次采样实时刷新）；修复源帧率不显示（预览回调实测帧率兜底）；TAAR v4.5增强超分内核。"
 }
