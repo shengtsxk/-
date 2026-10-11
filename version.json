@@ -1,5 +1,5 @@
 {
-    "download_url":  "https://github.com/shengtsxk/-/raw/main/Lingjing-v2.0.1-setup.exe",
-    "notes":  "v2.0.1：修复开启后黑块（输出窗口恒等目标客户区+帧缩放适配）；覆盖窗口点击穿透（不再挡鼠标）",
-    "latest_version":  "2.0.1"
+    "download_url":  "https://github.com/shengtsxk/-/raw/main/Lingjing-v2.0.2-setup.exe",
+    "notes":  "v2.0.2：超分窗口按倍率放大（不再缩回）；鼠标坐标映射（放大画面点击位置准确）；UI字体全面加大",
+    "latest_version":  "2.0.2"
 }
