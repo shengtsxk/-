@@ -1,5 +1,5 @@
 {
-    "download_url":  "https://github.com/shengtsxk/-/raw/main/Lingjing-v1.4.9-setup.exe",
-    "notes":  "v1.4.9：输出窗口无边框1:1（游戏分辨率即输出分辨率，无损）；捕获失败自动重试；报错后可恢复重启",
-    "latest_version":  "1.4.9"
+    "download_url":  "https://github.com/shengtsxk/-/raw/main/Lingjing-v1.5.0-setup.exe",
+    "notes":  "v1.5.0：修复覆盖窗口被隐藏（画面小/黑块），覆盖窗口始终显示且无边框1:1贴合游戏窗口",
+    "latest_version":  "1.5.0"
 }
