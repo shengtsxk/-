@@ -52,7 +52,7 @@ namespace Lingjing {
             void paintEvent(QPaintEvent* event) override {
                 Q_UNUSED(event);
                 QPainter p(this);
-                p.fillRect(rect(), QColor("#1E2630"));
+                p.fillRect(rect(), QColor("#2A2F3A"));
             }
         };
 
@@ -74,24 +74,23 @@ namespace Lingjing {
             if (tabs_) tabs_->setObjectName("settingsRootTabs");
             {
                 QPalette pal = palette();
-                pal.setColor(QPalette::Window, QColor("#1E2630"));
+                pal.setColor(QPalette::Window, QColor("#2A2F3A"));
                 setPalette(pal);
                 setAutoFillBackground(true);
             }
             setStyleSheet(Theme::instance().globalStyleSheet() + QStringLiteral(
-                "#settingsRoot { background-color: #1E2630; }"
-                "#settingsRoot * { background-color: #1E2630; }"
-                "#settingsRoot QGroupBox { background-color: #242E3A; }"
-                "#settingsRoot QPushButton { background-color: #2E3844; border-radius: 8px; }"
-                "#settingsRoot QPushButton:hover { background-color: #38424E; }"
-                "#settingsRoot QComboBox { background-color: #232D38; }"
-                "#settingsRoot QLineEdit { background-color: #232D38; }"
+                "#settingsRoot { background-color: #2A2F3A; }"
+                "#settingsRoot QGroupBox { background-color: #303744; border: 1px solid #3A4250; border-radius: 8px; }"
+                "#settingsRoot QPushButton { background-color: #383F4C; border-radius: 8px; border: 1px solid #3A4250; }"
+                "#settingsRoot QPushButton:hover { background-color: #434C5A; }"
+                "#settingsRoot QComboBox { background-color: #2C333E; }"
+                "#settingsRoot QLineEdit { background-color: #2C333E; }"
                 "#settingsRoot QCheckBox, #settingsRoot QLabel,"
                 "#settingsRoot QSlider, #settingsRoot QScrollArea { background-color: transparent; }"
-                "#settingsRootTabs { background-color: #1E2630; }"
+                "#settingsRootTabs { background-color: #2A2F3A; }"
                 "#settingsRootTabs::pane {"
-                "  background-color: #1E2630;"
-                "  border: 1px solid #2A3240;"
+                "  background-color: #2A2F3A;"
+                "  border: 1px solid #3A4250;"
                 "  border-radius: 8px; }"));
 
             // QTabBar 的 tab 是"子控件"（非独立 QWidget），父级通配/后代规则
@@ -99,21 +98,21 @@ namespace Lingjing {
             // 样式表里，才能覆盖系统样式（Windows 强调色）避免出现红色。
             tabs_->setStyleSheet(
                 "QTabBar::tab {"
-                "  background-color: #232D38;"
-                "  color: #9AA4B4;"
-                "  border: 1px solid #2A3240;"
+                "  background-color: #2C333E;"
+                "  color: #C2CAD6;"
+                "  border: 1px solid #3A4250;"
                 "  border-bottom: 2px solid transparent;"
                 "  border-top-left-radius: 8px;"
                 "  border-top-right-radius: 8px;"
                 "  padding: 8px 20px;"
                 "}"
                 "QTabBar::tab:hover {"
-                "  background-color: #2E3844;"
-                "  color: #E8ECF2;"
+                "  background-color: #383F4C;"
+                "  color: #FFFFFF;"
                 "}"
                 "QTabBar::tab:selected {"
-                "  background-color: #1E2630;"
-                "  color: #4A9EFF;"
+                "  background-color: #2A2F3A;"
+                "  color: #5FB0FF;"
                 "  border-bottom-color: #4A9EFF;"
                 "}");
 
@@ -124,12 +123,12 @@ namespace Lingjing {
                 QWidget* page = tabs_->widget(i);
                 if (!page) continue;
                 page->setStyleSheet(
-                    "QWidget { background-color: #1E2630; }"
-                    "QGroupBox { background-color: #242E3A; }"
-                    "QPushButton { background-color: #2E3844; border-radius: 8px; }"
-                    "QPushButton:hover { background-color: #38424E; }"
-                    "QComboBox { background-color: #232D38; }"
-                    "QLineEdit { background-color: #232D38; }"
+                    "QWidget { background-color: #2A2F3A; }"
+                    "QGroupBox { background-color: #303744; border: 1px solid #3A4250; border-radius: 8px; }"
+                    "QPushButton { background-color: #383F4C; border-radius: 8px; border: 1px solid #3A4250; }"
+                    "QPushButton:hover { background-color: #434C5A; }"
+                    "QComboBox { background-color: #2C333E; }"
+                    "QLineEdit { background-color: #2C333E; }"
                     "QCheckBox, QLabel, QSlider, QScrollArea { background-color: transparent; }");
                 page->setAutoFillBackground(true);
             }
@@ -144,7 +143,7 @@ namespace Lingjing {
         void SettingsDialog::paintEvent(QPaintEvent* event) {
             Q_UNUSED(event);
             QPainter p(this);
-            p.fillRect(rect(), QColor("#1E2630"));  // 深色不透明背景
+            p.fillRect(rect(), QColor("#2A2F3A"));  // 柔和不透明背景
             // 不调用基类：避免 globalStyleSheet 的半透明 QWidget 背景盖上来
         }
 
@@ -194,12 +193,12 @@ namespace Lingjing {
                 cancelBtn_->setFixedSize(100, 36);
                 cancelBtn_->setStyleSheet(
                     "QPushButton {"
-                    "  background-color: #2E3844;"
+                    "  background-color: #383F4C;"
                     "  color: #E8ECF2;"
                     "  border: 1px solid #3A4654;"
                     "  border-radius: 6px;"
                     "}"
-                    "QPushButton:hover { background-color: #38424E; }");
+                    "QPushButton:hover { background-color: #434C5A; }");
                 connect(cancelBtn_, &QPushButton::clicked,
                     this, &SettingsDialog::onRejected);
                 btnLayout->addWidget(cancelBtn_);
@@ -524,7 +523,7 @@ namespace Lingjing {
                 groupLayout->addSpacing(8);
 
                 learningStatsLabel_ = new QLabel("已学习 0 个游戏");
-                learningStatsLabel_->setStyleSheet("color: #9AA4B4; font-size: 16px;");
+                learningStatsLabel_->setStyleSheet("color: #C2CAD6; font-size: 16px;");
                 groupLayout->addWidget(learningStatsLabel_);
 
                 groupLayout->addSpacing(8);
@@ -539,7 +538,7 @@ namespace Lingjing {
 
                 // 社区模型共享
                 QLabel* modelTitle = new QLabel("模型共享（社区）");
-                modelTitle->setStyleSheet("color: #9AA4B4; font-size: 16px;");
+                modelTitle->setStyleSheet("color: #C2CAD6; font-size: 16px;");
                 groupLayout->addWidget(modelTitle);
 
                 QHBoxLayout* modelBtns = new QHBoxLayout();
@@ -568,7 +567,7 @@ namespace Lingjing {
                     "· 下载：从社区下载其他用户分享的学习模型（自动合并）\n"
                     "· 轻量统计学习模型，内存占用极小，非 1.5 亿参数深度网络");
                 modelHint->setWordWrap(true);
-                modelHint->setStyleSheet("color: #7A8494; font-size: 16px;");
+                modelHint->setStyleSheet("color: #AEB6C4; font-size: 16px;");
                 groupLayout->addWidget(modelHint);
 
                 groupLayout->addStretch();
@@ -599,7 +598,7 @@ namespace Lingjing {
 
             QLabel* version = new QLabel(
                 QStringLiteral("版本 %1").arg(QStringLiteral(LINGJING_VERSION_STRING)));
-            version->setStyleSheet("color: #9AA4B4; font-size: 16px;");
+            version->setStyleSheet("color: #C2CAD6; font-size: 16px;");
             version->setAlignment(Qt::AlignCenter);
             layout->addWidget(version);
 
@@ -615,7 +614,7 @@ namespace Lingjing {
                 "几何反演 + 3D 相干流场 + 学习系统\n\n"
                 "© 2026 Lingjing Project");
             desc->setAlignment(Qt::AlignCenter);
-            desc->setStyleSheet("color: #9AA4B4; font-size: 16px; line-height: 1.6;");
+            desc->setStyleSheet("color: #C2CAD6; font-size: 16px; line-height: 1.6;");
             layout->addWidget(desc);
 
             layout->addStretch();

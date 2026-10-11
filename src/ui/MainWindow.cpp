@@ -168,8 +168,8 @@ namespace Lingjing {
             // 副标题
             QLabel* subtitle = new QLabel("通用游戏帧生成", this);
             subtitle->setStyleSheet(
-                "font-size: 10px;"
-                "color: #9AA4B4;"
+                "font-size: 14px;"
+                "color: #C2CAD6;"
                 "margin-left: 4px;");
             layout->addWidget(subtitle);
 
@@ -183,7 +183,7 @@ namespace Lingjing {
             settingsBtn_->setStyleSheet(
                 "QPushButton {"
                 "  background-color: transparent;"
-                "  color: #9AA4B4;"
+                "  color: #C2CAD6;"
                 "  border: 1px solid #2A3240;"
                 "  border-radius: 6px;"
                 "  padding: 4px 16px;"
@@ -204,7 +204,7 @@ namespace Lingjing {
                 btn->setStyleSheet(
                     "QPushButton {"
                     "  background-color: transparent;"
-                    "  color: #9AA4B4;"
+                    "  color: #C2CAD6;"
                     "  border: none;"
                     "  border-radius: 6px;"
                     "  font-size: 16px;"
@@ -222,7 +222,7 @@ namespace Lingjing {
             closeBtn_->setStyleSheet(
                 "QPushButton {"
                 "  background-color: transparent;"
-                "  color: #9AA4B4;"
+                "  color: #C2CAD6;"
                 "  border: none;"
                 "  border-radius: 6px;"
                 "  font-size: 16px;"
@@ -363,7 +363,7 @@ namespace Lingjing {
             auto makeIndicator = [this](const QString& label) -> QLabel* {
                 QLabel* lbl = new QLabel(label, this);
                 lbl->setStyleSheet(
-                    "color: #9AA4B4;"
+                    "color: #C2CAD6;"
                     "font-size: 16px;");
                 return lbl;
             };
@@ -1163,7 +1163,7 @@ namespace Lingjing {
                     if (!notes.isEmpty()) {
                         auto* body = new QLabel(notes, &dlg);
                         body->setWordWrap(true);
-                        body->setStyleSheet("font-size: 16px; color: #9AA4B4;");
+                        body->setStyleSheet("font-size: 16px; color: #C2CAD6;");
                         lay->addWidget(body);
                     }
 

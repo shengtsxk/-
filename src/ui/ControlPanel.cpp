@@ -56,7 +56,7 @@ namespace Lingjing {
 
                 gameLabel_ = new QLabel("当前游戏", header);
                 gameLabel_->setStyleSheet(
-                    "color: #9AA4B4;"
+                    "color: #C2CAD6;"
                     "font-size: 16px;");
                 layout->addWidget(gameLabel_);
 
@@ -145,7 +145,7 @@ namespace Lingjing {
                 QHBoxLayout* sliderRow = new QHBoxLayout();
 
                 QLabel* minLabel = new QLabel("1x", group);
-                minLabel->setStyleSheet("color: #9AA4B4; font-size: 16px;");
+                minLabel->setStyleSheet("color: #C2CAD6; font-size: 16px;");
                 minLabel->setMinimumWidth(30);
                 sliderRow->addWidget(minLabel);
                 multiplierSlider_ = new QSlider(Qt::Horizontal, group);
@@ -158,7 +158,7 @@ namespace Lingjing {
                 sliderRow->addWidget(multiplierSlider_, 1);
 
                 multiplierLabel_ = new QLabel("20x", group);
-                multiplierLabel_->setStyleSheet("color: #9AA4B4; font-size: 16px;");
+                multiplierLabel_->setStyleSheet("color: #C2CAD6; font-size: 16px;");
                 multiplierLabel_->setMinimumWidth(30);
                 sliderRow->addWidget(multiplierLabel_);
 
@@ -187,7 +187,7 @@ namespace Lingjing {
                 layout->setSpacing(12);
 
                 qualityLabel_ = new QLabel("选择画质", group);
-                qualityLabel_->setStyleSheet("color: #9AA4B4; font-size: 16px;");
+                qualityLabel_->setStyleSheet("color: #C2CAD6; font-size: 16px;");
                 layout->addWidget(qualityLabel_);
 
                 qualityCombo_ = new QComboBox(group);
@@ -213,7 +213,7 @@ namespace Lingjing {
                 layout->setSpacing(12);
 
                 latencyLabel_ = new QLabel("选择延迟目标", group);
-                latencyLabel_->setStyleSheet("color: #9AA4B4; font-size: 16px;");
+                latencyLabel_->setStyleSheet("color: #C2CAD6; font-size: 16px;");
                 layout->addWidget(latencyLabel_);
 
                 latencyCombo_ = new QComboBox(group);
@@ -276,7 +276,7 @@ namespace Lingjing {
                     QHBoxLayout* row = new QHBoxLayout();
 
                     deJellyLabel_ = new QLabel("去果冻强度", group);
-                    deJellyLabel_->setStyleSheet("color: #9AA4B4; font-size: 16px;");
+                    deJellyLabel_->setStyleSheet("color: #C2CAD6; font-size: 16px;");
                     row->addWidget(deJellyLabel_);
 
                     row->addStretch();
@@ -303,7 +303,7 @@ namespace Lingjing {
                     QHBoxLayout* row = new QHBoxLayout();
 
                     temporalLabel_ = new QLabel("时域平滑权重", group);
-                    temporalLabel_->setStyleSheet("color: #9AA4B4; font-size: 16px;");
+                    temporalLabel_->setStyleSheet("color: #C2CAD6; font-size: 16px;");
                     row->addWidget(temporalLabel_);
 
                     row->addStretch();
@@ -378,7 +378,7 @@ namespace Lingjing {
                     "无需 Tensor Core / 深度学习。可单独使用，也可与 IRFG 帧生成叠加。",
                     group);
                 info->setWordWrap(true);
-                info->setStyleSheet("color: #9AA4B4; font-size: 16px;");
+                info->setStyleSheet("color: #C2CAD6; font-size: 16px;");
                 layout->addWidget(info);
 
                 al->addWidget(group);

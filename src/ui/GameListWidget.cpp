@@ -93,9 +93,9 @@ namespace Lingjing {
             // 面板控件透明度（0-100）
             const int alpha = Theme::instance().panelOpacity();
 
-            QColor containerColor(0x14, 0x18, 0x20, alpha * 255 / 100);
-            QColor itemColor(0x1A, 0x1E, 0x28, alpha * 255 / 100);
-            QColor hoverColor(0x22, 0x28, 0x32, alpha * 255 / 100);
+            QColor containerColor(0x18, 0x1C, 0x26, alpha * 255 / 100);
+            QColor itemColor(0x22, 0x28, 0x34, alpha * 255 / 100);
+            QColor hoverColor(0x2E, 0x36, 0x44, alpha * 255 / 100);
 
             setStyleSheet(QString(
                 "GameListWidget {"
@@ -123,7 +123,7 @@ namespace Lingjing {
                 "  background: transparent;"
                 "}"
                 "QListWidget::item {"
-                "  background-color: %3;"
+                "  background-color: %2;"
                 "  border-radius: 8px;"
                 "  padding: 12px;"
                 "  margin: 2px 0;"
@@ -131,7 +131,7 @@ namespace Lingjing {
                 "}"
                 "QListWidget::item:hover {"
                 "  background-color: %3;"
-                "  border-color: #2A3240;"
+                "  border-color: #3A4250;"
                 "}"
                 "QListWidget::item:selected {"
                 "  background-color: #1E3048;"
