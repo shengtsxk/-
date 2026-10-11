@@ -4,6 +4,7 @@
 
 #include <chrono>
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 
 #ifdef _WIN32
@@ -151,7 +152,7 @@ namespace Lingjing {
         }
 
         hOutputWnd_ = CreateWindowExW(
-            WS_EX_TOPMOST | WS_EX_NOACTIVATE,
+            WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_TRANSPARENT,
             L"LingjingOutputWnd", L"灵境 输出画面",
             WS_POPUP,  // 无边框：客户区 = 指定尺寸 = 游戏分辨率（1:1 无损输出）
             posX, posY, wndW, wndH,
@@ -668,18 +669,47 @@ namespace Lingjing {
         D3D11_TEXTURE2D_DESC bd = {};
         bb->GetDesc(&bd);
 
-        // backbuffer 尺寸与帧尺寸不一致时 ResizeBuffers（窗口尺寸变化/超分倍率变化）
+        // 帧尺寸与 backbuffer（=窗口客户区，恒等于目标客户区）不一致时，
+        // 双线性缩放帧适配窗口：窗口永远贴合目标窗口，不裁剪不黑块。
+        // （WGC 捕获帧可能含 DWM 边框/阴影或特殊窗口返回全屏级纹理，
+        //   绝不能把输出窗口放大到帧尺寸——会盖住整个屏幕。）
+        const uint8_t* srcData = frame.data();
+        uint32_t srcPitch = fw * 4;
         if (bd.Width != fw || bd.Height != fh) {
-            bb->Release();
-            if (SUCCEEDED(sc->ResizeBuffers(0, fw, fh, DXGI_FORMAT_UNKNOWN, 0))) {
-                if (FAILED(sc->GetBuffer(0, IID_PPV_ARGS(&bb)))) return;
-            } else {
-                return;
+            const uint32_t dw = bd.Width, dh = bd.Height;
+            std::vector<uint8_t> scaled((size_t)dw * dh * 4);
+            if (dw > 0 && dh > 0) {
+                // 双线性插值缩放（top-down B8G8R8A8）
+                for (uint32_t y = 0; y < dh; ++y) {
+                    const float sy = (fh > 1) ? (y + 0.5f) * fh / dh - 0.5f : 0.f;
+                    const int y0 = (int)std::floor(sy);
+                    const int y1 = y0 + 1;
+                    const float fy = sy - y0;
+                    const int cy0 = std::clamp(y0, 0, (int)fh - 1);
+                    const int cy1 = std::clamp(y1, 0, (int)fh - 1);
+                    const uint8_t* row0 = frame.data() + (size_t)cy0 * srcPitch;
+                    const uint8_t* row1 = frame.data() + (size_t)cy1 * srcPitch;
+                    uint8_t* dst = scaled.data() + (size_t)y * dw * 4;
+                    for (uint32_t x = 0; x < dw; ++x) {
+                        const float sx = (fw > 1) ? (x + 0.5f) * fw / dw - 0.5f : 0.f;
+                        const int x0 = (int)std::floor(sx);
+                        const int x1 = x0 + 1;
+                        const float fx = sx - x0;
+                        const int cx0 = std::clamp(x0, 0, (int)fw - 1);
+                        const int cx1 = std::clamp(x1, 0, (int)fw - 1);
+                        for (int c = 0; c < 4; ++c) {
+                            const float v = (row0[cx0 * 4 + c] * (1.f - fx) + row0[cx1 * 4 + c] * fx) * (1.f - fy)
+                                          + (row1[cx0 * 4 + c] * (1.f - fx) + row1[cx1 * 4 + c] * fx) * fy;
+                            dst[x * 4 + c] = (uint8_t)std::clamp((int)(v + 0.5f), 0, 255);
+                        }
+                    }
+                }
             }
+            ctx->UpdateSubresource(bb, 0, nullptr, scaled.data(), dw * 4, 0);
+        } else {
+            // 1:1 无损直写
+            ctx->UpdateSubresource(bb, 0, nullptr, srcData, srcPitch, 0);
         }
-
-        // 帧数据直写 backbuffer（B8G8R8A8，top-down）
-        ctx->UpdateSubresource(bb, 0, nullptr, frame.data(), fw * 4, 0);
 
         // UI 预览回调（Qt 主窗口内显示，虚拟桌面/远程会话可正常合成）
         if (frameCallback_) {
