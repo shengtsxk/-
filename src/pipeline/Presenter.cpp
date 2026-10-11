@@ -160,19 +160,12 @@ namespace Lingjing {
         if (hOutputWnd_) {
             SetWindowLongPtrW((HWND)hOutputWnd_, GWLP_USERDATA,
                 reinterpret_cast<LONG_PTR>(this));
-            // 虚拟桌面/远程会话验收：存在 hide_output.flag 时隐藏独立输出窗口，
-            // 画面改由 Qt 主窗口预览区显示（该环境不合成裸窗口内容）
-            bool hideOutput = false;
-            {
-                const wchar_t* flag = L"C:\\Users\\Asgard\\AppData\\Roaming\\LingjingProject\\Lingjing\\hide_output.flag";
-                if (GetFileAttributesW(flag) != INVALID_FILE_ATTRIBUTES) {
-                    hideOutput = true;
-                }
-            }
-            ShowWindow((HWND)hOutputWnd_, hideOutput ? SW_HIDE : SW_SHOW);
+            // 覆盖窗口始终显示——画面覆盖在游戏窗口上方是核心功能，
+            // 不再允许任何 flag 隐藏（历史 hide_output.flag 机制已移除）
+            ShowWindow((HWND)hOutputWnd_, SW_SHOW);
             UpdateWindow((HWND)hOutputWnd_);
-            LOG_INFO("Presenter: output window created (%ux%u) hide=%d",
-                outW_, outH_, (int)hideOutput);
+            LOG_INFO("Presenter: output window created (%ux%u) show=1",
+                outW_, outH_);
         } else {
             LOG_WARN("Presenter: failed to create output window");
         }
