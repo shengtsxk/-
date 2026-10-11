@@ -1,5 +1,5 @@
 {
-    "download_url":  "https://github.com/shengtsxk/-/raw/main/Lingjing-v2.0.2-setup.exe",
-    "notes":  "v2.0.2：超分窗口按倍率放大（不再缩回）；鼠标坐标映射（放大画面点击位置准确）；UI字体全面加大",
-    "latest_version":  "2.0.2"
+    "download_url":  "https://github.com/shengtsxk/-/raw/main/Lingjing-v2.0.3-setup.exe",
+    "notes":  "v2.0.3：修复超分黑屏——输出窗口超屏等比钳制+禁用GDI与swap chain双绘制冲突",
+    "latest_version":  "2.0.3"
 }
