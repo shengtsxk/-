@@ -69,11 +69,11 @@ namespace Lingjing {
             wc.lpfnWndProc = [](HWND h, UINT msg, WPARAM wParam, LPARAM lParam) -> LRESULT {
                 switch (msg) {
                 case WM_PAINT: {
+                    // 输出画面完全由 swap chain 呈现（presentSwapChain）。
+                    // 不在 WM_PAINT 里做 GDI 绘制：GDI 与 DXGI 双绘制会互相
+                    // 覆盖，超分放大/ResizeBuffers 后出现黑屏或闪烁。
                     PAINTSTRUCT ps;
                     BeginPaint(h, &ps);
-                    Presenter* self = reinterpret_cast<Presenter*>(
-                        GetWindowLongPtrW(h, GWLP_USERDATA));
-                    if (self) self->paintFrame(h, ps.hdc);
                     EndPaint(h, &ps);
                     return 0;
                 }
@@ -187,25 +187,36 @@ namespace Lingjing {
         int posX = origin.x;
         int posY = origin.y;
 
-        // 限制在目标显示器工作区内（超分放大后不超出屏幕，居中放置）
+        // 限制在目标显示器工作区内（超分放大后不超出屏幕，等比缩放不变形）
         {
             HMONITOR mon = MonitorFromWindow(hTarget, MONITOR_DEFAULTTONEAREST);
             MONITORINFO mi = {};
             mi.cbSize = sizeof(mi);
-            if (GetMonitorInfoW(mon, &mi)) {
-                const int workW = mi.rcWork.right - mi.rcWork.left;
-                const int workH = mi.rcWork.bottom - mi.rcWork.top;
-                if (wndW > workW) wndW = workW;
-                if (wndH > workH) wndH = workH;
-                if (posX + wndW > mi.rcWork.right) {
-                    posX = mi.rcWork.left + (workW - wndW) / 2;
+            if (!GetMonitorInfoW(mon, &mi)) {
+                // 兜底：主屏工作区
+                RECT wa = {};
+                if (!SystemParametersInfoW(SPI_GETWORKAREA, 0, &wa, 0)) {
+                    wa.left = 0; wa.top = 0;
+                    wa.right = GetSystemMetrics(SM_CXSCREEN);
+                    wa.bottom = GetSystemMetrics(SM_CYSCREEN);
                 }
-                if (posY + wndH > mi.rcWork.bottom) {
-                    posY = mi.rcWork.top + (workH - wndH) / 2;
-                }
-                if (posX < mi.rcWork.left) posX = mi.rcWork.left;
-                if (posY < mi.rcWork.top) posY = mi.rcWork.top;
+                mi.rcWork = wa;
             }
+            const int workW = mi.rcWork.right - mi.rcWork.left;
+            const int workH = mi.rcWork.bottom - mi.rcWork.top;
+            if (wndW > workW || wndH > workH) {
+                const double s = std::min((double)workW / wndW, (double)workH / wndH);
+                wndW = std::max(1, (int)(wndW * s));
+                wndH = std::max(1, (int)(wndH * s));
+            }
+            if (posX + wndW > mi.rcWork.right) {
+                posX = mi.rcWork.left + (workW - wndW) / 2;
+            }
+            if (posY + wndH > mi.rcWork.bottom) {
+                posY = mi.rcWork.top + (workH - wndH) / 2;
+            }
+            if (posX < mi.rcWork.left) posX = mi.rcWork.left;
+            if (posY < mi.rcWork.top) posY = mi.rcWork.top;
         }
 
         hOutputWnd_ = CreateWindowExW(
@@ -916,23 +927,36 @@ namespace Lingjing {
             outH = tgtH * (int)superResScale_;
         }
 
-        // 限制在屏幕工作区内 + 位置钳制（超分放大后不超出屏幕）
+        // 限制在屏幕工作区内 + 位置钳制（超分放大后不超出屏幕）。
+        // 尺寸超屏时按比例等比缩小，保证画面完整可见且不变形。
         int newX = origin.x;
         int newY = origin.y;
         {
             HMONITOR mon = MonitorFromWindow(hTarget, MONITOR_DEFAULTTONEAREST);
             MONITORINFO mi = {};
             mi.cbSize = sizeof(mi);
-            if (GetMonitorInfoW(mon, &mi)) {
-                const int workW = mi.rcWork.right - mi.rcWork.left;
-                const int workH = mi.rcWork.bottom - mi.rcWork.top;
-                if (outW > workW) outW = workW;
-                if (outH > workH) outH = workH;
-                if (newX + outW > mi.rcWork.right) newX = mi.rcWork.right - outW;
-                if (newY + outH > mi.rcWork.bottom) newY = mi.rcWork.bottom - outH;
-                if (newX < mi.rcWork.left) newX = mi.rcWork.left;
-                if (newY < mi.rcWork.top) newY = mi.rcWork.top;
+            if (!GetMonitorInfoW(mon, &mi)) {
+                // 兜底：主屏工作区（GetMonitorInfoW 失败时防止窗口超屏黑屏）
+                RECT wa = {};
+                if (!SystemParametersInfoW(SPI_GETWORKAREA, 0, &wa, 0)) {
+                    wa.left = 0; wa.top = 0;
+                    wa.right = GetSystemMetrics(SM_CXSCREEN);
+                    wa.bottom = GetSystemMetrics(SM_CYSCREEN);
+                }
+                mi.rcWork = wa;
             }
+            const int workW = mi.rcWork.right - mi.rcWork.left;
+            const int workH = mi.rcWork.bottom - mi.rcWork.top;
+            if (outW > workW || outH > workH) {
+                // 等比缩放至工作区内（超分放大 + 屏幕约束，画面完整不变形）
+                const double s = std::min((double)workW / outW, (double)workH / outH);
+                outW = std::max(1, (int)(outW * s));
+                outH = std::max(1, (int)(outH * s));
+            }
+            if (newX + outW > mi.rcWork.right) newX = mi.rcWork.right - outW;
+            if (newY + outH > mi.rcWork.bottom) newY = mi.rcWork.bottom - outH;
+            if (newX < mi.rcWork.left) newX = mi.rcWork.left;
+            if (newY < mi.rcWork.top) newY = mi.rcWork.top;
         }
 
         RECT owr = {};

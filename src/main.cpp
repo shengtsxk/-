@@ -185,7 +185,7 @@ int main(int argc, char* argv[]) {
     app.setApplicationDisplayName("灵境");
     app.setOrganizationName("LingjingProject");
     app.setOrganizationDomain("lingjing.dev");
-    app.setApplicationVersion("2.0.2");
+    app.setApplicationVersion("2.0.3");
 
     // 应用图标（青鸾）
     QIcon appIcon("assets/icons/qingluan.png");
