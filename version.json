@@ -1,5 +1,1 @@
-{
-    "download_url":  "https://github.com/shengtsxk/-/raw/main/Lingjing-v2.0.3-setup.exe",
-    "notes":  "v2.0.3：修复超分黑屏——输出窗口超屏等比钳制+禁用GDI与swap chain双绘制冲突",
-    "latest_version":  "2.0.3"
-}
+{"latest_version":"2.0.4","min_version":"2.0.0","release_notes":"UI主题修复：设置面板柔和化、文字提亮消除颜色冲突、列表悬停黑块修复、主界面小字加大"}
