@@ -1,5 +1,5 @@
 {
-    "download_url":  "https://github.com/shengtsxk/-/raw/main/Lingjing-v2.0.0-setup.exe",
-    "notes":  "v2.0.0：覆盖窗口始终显示（无边框1:1贴合）；捕获失败自动重试；Error可恢复；插帧真实质量评估；16x双基准",
-    "latest_version":  "2.0.0"
+    "download_url":  "https://github.com/shengtsxk/-/raw/main/Lingjing-v2.0.1-setup.exe",
+    "notes":  "v2.0.1：修复开启后黑块（输出窗口恒等目标客户区+帧缩放适配）；覆盖窗口点击穿透（不再挡鼠标）",
+    "latest_version":  "2.0.1"
 }
