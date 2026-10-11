@@ -524,7 +524,7 @@ namespace Lingjing {
                 groupLayout->addSpacing(8);
 
                 learningStatsLabel_ = new QLabel("已学习 0 个游戏");
-                learningStatsLabel_->setStyleSheet("color: #9AA4B4; font-size: 11px;");
+                learningStatsLabel_->setStyleSheet("color: #9AA4B4; font-size: 16px;");
                 groupLayout->addWidget(learningStatsLabel_);
 
                 groupLayout->addSpacing(8);
@@ -539,7 +539,7 @@ namespace Lingjing {
 
                 // 社区模型共享
                 QLabel* modelTitle = new QLabel("模型共享（社区）");
-                modelTitle->setStyleSheet("color: #9AA4B4; font-size: 11px;");
+                modelTitle->setStyleSheet("color: #9AA4B4; font-size: 16px;");
                 groupLayout->addWidget(modelTitle);
 
                 QHBoxLayout* modelBtns = new QHBoxLayout();
@@ -568,7 +568,7 @@ namespace Lingjing {
                     "· 下载：从社区下载其他用户分享的学习模型（自动合并）\n"
                     "· 轻量统计学习模型，内存占用极小，非 1.5 亿参数深度网络");
                 modelHint->setWordWrap(true);
-                modelHint->setStyleSheet("color: #7A8494; font-size: 11px;");
+                modelHint->setStyleSheet("color: #7A8494; font-size: 16px;");
                 groupLayout->addWidget(modelHint);
 
                 groupLayout->addStretch();
@@ -599,7 +599,7 @@ namespace Lingjing {
 
             QLabel* version = new QLabel(
                 QStringLiteral("版本 %1").arg(QStringLiteral(LINGJING_VERSION_STRING)));
-            version->setStyleSheet("color: #9AA4B4; font-size: 12px;");
+            version->setStyleSheet("color: #9AA4B4; font-size: 16px;");
             version->setAlignment(Qt::AlignCenter);
             layout->addWidget(version);
 
@@ -615,7 +615,7 @@ namespace Lingjing {
                 "几何反演 + 3D 相干流场 + 学习系统\n\n"
                 "© 2026 Lingjing Project");
             desc->setAlignment(Qt::AlignCenter);
-            desc->setStyleSheet("color: #9AA4B4; font-size: 12px; line-height: 1.6;");
+            desc->setStyleSheet("color: #9AA4B4; font-size: 16px; line-height: 1.6;");
             layout->addWidget(desc);
 
             layout->addStretch();

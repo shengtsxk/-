@@ -10,6 +10,7 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <windowsx.h>
 #include <d3d11.h>
 #include <dxgi.h>
 #include <dxgi1_2.h>
@@ -90,6 +91,62 @@ namespace Lingjing {
                     UpdateWindow(h);
                     return 0;
                 }
+                // ---- 鼠标坐标映射：输出窗口（超分放大后）接收鼠标消息，
+                //      把放大坐标映射回目标窗口客户区坐标后转发给目标窗口，
+                //      保证点击位置与放大画面视觉位置一致 ----
+                case WM_MOUSEMOVE:
+                case WM_LBUTTONDOWN: case WM_LBUTTONUP: case WM_LBUTTONDBLCLK:
+                case WM_RBUTTONDOWN: case WM_RBUTTONUP: case WM_RBUTTONDBLCLK:
+                case WM_MBUTTONDOWN: case WM_MBUTTONUP: case WM_MBUTTONDBLCLK:
+                case WM_XBUTTONDOWN: case WM_XBUTTONUP: case WM_XBUTTONDBLCLK:
+                case WM_MOUSEHWHEEL: {
+                    Presenter* self = reinterpret_cast<Presenter*>(
+                        GetWindowLongPtrW(h, GWLP_USERDATA));
+                    if (!self) break;
+                    HWND hTarget = (HWND)self->targetHwnd_;
+                    if (!hTarget || !IsWindow(hTarget)) break;
+                    // 输出窗口客户区尺寸与目标客户区尺寸比 = 映射比例
+                    RECT ocr = {}, tcr = {};
+                    GetClientRect(h, &ocr);
+                    if (!GetClientRect(hTarget, &tcr)) break;
+                    const int ow = ocr.right - ocr.left;
+                    const int oh = ocr.bottom - ocr.top;
+                    const int tw = tcr.right - tcr.left;
+                    const int th = tcr.bottom - tcr.top;
+                    if (ow <= 0 || oh <= 0 || tw <= 0 || th <= 0) break;
+                    // 消息坐标（窗口客户区像素）→ 目标客户区坐标
+                    const int mx = GET_X_LPARAM(lParam);
+                    const int my = GET_Y_LPARAM(lParam);
+                    const int sx = (int)(mx * (double)tw / ow);
+                    const int sy = (int)(my * (double)th / oh);
+                    if (msg == WM_MOUSEMOVE) {
+                        TRACKMOUSEEVENT tme = { sizeof(tme), TME_LEAVE, h, 0 };
+                        TrackMouseEvent(&tme);
+                    }
+                    SendMessageW(hTarget, msg, wParam, MAKELPARAM(sx, sy));
+                    return 0;
+                }
+                case WM_MOUSEWHEEL: {
+                    // 滚轮无需坐标映射，直接转发（并映射 x 轴方向量由系统处理）
+                    Presenter* self = reinterpret_cast<Presenter*>(
+                        GetWindowLongPtrW(h, GWLP_USERDATA));
+                    if (!self) break;
+                    HWND hTarget = (HWND)self->targetHwnd_;
+                    if (hTarget && IsWindow(hTarget)) {
+                        SendMessageW(hTarget, msg, wParam, lParam);
+                    }
+                    return 0;
+                }
+                case WM_MOUSELEAVE: {
+                    Presenter* self = reinterpret_cast<Presenter*>(
+                        GetWindowLongPtrW(h, GWLP_USERDATA));
+                    if (!self) break;
+                    HWND hTarget = (HWND)self->targetHwnd_;
+                    if (hTarget && IsWindow(hTarget)) {
+                        SendMessageW(hTarget, WM_MOUSELEAVE, 0, 0);
+                    }
+                    return 0;
+                }
                 default:
                     return DefWindowProcW(h, msg, wParam, lParam);
                 }
@@ -152,7 +209,7 @@ namespace Lingjing {
         }
 
         hOutputWnd_ = CreateWindowExW(
-            WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_TRANSPARENT,
+            WS_EX_TOPMOST | WS_EX_NOACTIVATE,
             L"LingjingOutputWnd", L"灵境 输出画面",
             WS_POPUP,  // 无边框：客户区 = 指定尺寸 = 游戏分辨率（1:1 无损输出）
             posX, posY, wndW, wndH,
@@ -669,7 +726,25 @@ namespace Lingjing {
         D3D11_TEXTURE2D_DESC bd = {};
         bb->GetDesc(&bd);
 
-        // 帧尺寸与 backbuffer（=窗口客户区，恒等于目标客户区）不一致时，
+        // 先保证 backbuffer 尺寸 = 窗口客户区（超分放大/倍率变化后窗口被
+        // followTargetWindow 调整，backbuffer 必须同步，否则画面错乱/黑）
+        {
+            RECT wcr = {};
+            GetClientRect((HWND)hOutputWnd_, &wcr);
+            const UINT cw = (UINT)(wcr.right - wcr.left);
+            const UINT ch = (UINT)(wcr.bottom - wcr.top);
+            if (cw == 0 || ch == 0) { bb->Release(); return; }
+            if (bd.Width != cw || bd.Height != ch) {
+                bb->Release();
+                if (FAILED(sc->ResizeBuffers(0, cw, ch, DXGI_FORMAT_UNKNOWN, 0))) {
+                    return;
+                }
+                if (FAILED(sc->GetBuffer(0, IID_PPV_ARGS(&bb)))) return;
+                bb->GetDesc(&bd);
+            }
+        }
+
+        // 帧尺寸与 backbuffer（=窗口客户区）不一致时，
         // 双线性缩放帧适配窗口：窗口永远贴合目标窗口，不裁剪不黑块。
         // （WGC 捕获帧可能含 DWM 边框/阴影或特殊窗口返回全屏级纹理，
         //   绝不能把输出窗口放大到帧尺寸——会盖住整个屏幕。）
@@ -826,10 +901,9 @@ namespace Lingjing {
         if (!GetClientRect(hTarget, &tcr)) return;
         if (tcr.right <= 0 || tcr.bottom <= 0) return;
 
-        // 无边框覆盖：输出窗口完全覆盖目标窗口客户区
-        // （尺寸恒等于目标客户区，与 swap chain backbuffer / ED-ASR 输出尺寸
-        //   保持一致，避免 CopyResource/UpdateSubresource 尺寸错配；
-        //   超分放大显示由 Presenter 绘制阶段完成）
+        // 无边框覆盖：输出窗口完全覆盖目标窗口客户区；
+        // 超分开启时按倍率放大（窗口 = 客户区 × scale，backbuffer 同步，
+        // 帧缩放填满，实现超分放大显示，不再缩回目标尺寸）
         POINT origin = {0, 0};
         ClientToScreen(hTarget, &origin);
         const int tgtW = tcr.right - tcr.left;
@@ -837,6 +911,10 @@ namespace Lingjing {
 
         int outW = tgtW;
         int outH = tgtH;
+        if (superResEnabled_ && superResScale_ >= 2) {
+            outW = tgtW * (int)superResScale_;
+            outH = tgtH * (int)superResScale_;
+        }
 
         // 限制在屏幕工作区内 + 位置钳制（超分放大后不超出屏幕）
         int newX = origin.x;

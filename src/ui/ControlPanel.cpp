@@ -57,13 +57,13 @@ namespace Lingjing {
                 gameLabel_ = new QLabel("当前游戏", header);
                 gameLabel_->setStyleSheet(
                     "color: #9AA4B4;"
-                    "font-size: 11px;");
+                    "font-size: 16px;");
                 layout->addWidget(gameLabel_);
 
                 gameName_ = new QLabel("未选择", header);
                 gameName_->setStyleSheet(
                     "color: #E8ECF2;"
-                    "font-size: 18px;"
+                    "font-size: 20px;"
                     "font-weight: bold;");
                 layout->addWidget(gameName_);
 
@@ -145,7 +145,7 @@ namespace Lingjing {
                 QHBoxLayout* sliderRow = new QHBoxLayout();
 
                 QLabel* minLabel = new QLabel("1x", group);
-                minLabel->setStyleSheet("color: #9AA4B4; font-size: 11px;");
+                minLabel->setStyleSheet("color: #9AA4B4; font-size: 16px;");
                 minLabel->setMinimumWidth(30);
                 sliderRow->addWidget(minLabel);
                 multiplierSlider_ = new QSlider(Qt::Horizontal, group);
@@ -158,7 +158,7 @@ namespace Lingjing {
                 sliderRow->addWidget(multiplierSlider_, 1);
 
                 multiplierLabel_ = new QLabel("20x", group);
-                multiplierLabel_->setStyleSheet("color: #9AA4B4; font-size: 11px;");
+                multiplierLabel_->setStyleSheet("color: #9AA4B4; font-size: 16px;");
                 multiplierLabel_->setMinimumWidth(30);
                 sliderRow->addWidget(multiplierLabel_);
 
@@ -187,7 +187,7 @@ namespace Lingjing {
                 layout->setSpacing(12);
 
                 qualityLabel_ = new QLabel("选择画质", group);
-                qualityLabel_->setStyleSheet("color: #9AA4B4; font-size: 11px;");
+                qualityLabel_->setStyleSheet("color: #9AA4B4; font-size: 16px;");
                 layout->addWidget(qualityLabel_);
 
                 qualityCombo_ = new QComboBox(group);
@@ -213,7 +213,7 @@ namespace Lingjing {
                 layout->setSpacing(12);
 
                 latencyLabel_ = new QLabel("选择延迟目标", group);
-                latencyLabel_->setStyleSheet("color: #9AA4B4; font-size: 11px;");
+                latencyLabel_->setStyleSheet("color: #9AA4B4; font-size: 16px;");
                 layout->addWidget(latencyLabel_);
 
                 latencyCombo_ = new QComboBox(group);
@@ -276,7 +276,7 @@ namespace Lingjing {
                     QHBoxLayout* row = new QHBoxLayout();
 
                     deJellyLabel_ = new QLabel("去果冻强度", group);
-                    deJellyLabel_->setStyleSheet("color: #9AA4B4; font-size: 11px;");
+                    deJellyLabel_->setStyleSheet("color: #9AA4B4; font-size: 16px;");
                     row->addWidget(deJellyLabel_);
 
                     row->addStretch();
@@ -284,7 +284,7 @@ namespace Lingjing {
                     deJellyValue_ = new QLabel("60%", group);
                     deJellyValue_->setStyleSheet(
                         "color: #4A9EFF;"
-                        "font-size: 11px;"
+                        "font-size: 16px;"
                         "font-weight: bold;");
                     row->addWidget(deJellyValue_);
 
@@ -303,7 +303,7 @@ namespace Lingjing {
                     QHBoxLayout* row = new QHBoxLayout();
 
                     temporalLabel_ = new QLabel("时域平滑权重", group);
-                    temporalLabel_->setStyleSheet("color: #9AA4B4; font-size: 11px;");
+                    temporalLabel_->setStyleSheet("color: #9AA4B4; font-size: 16px;");
                     row->addWidget(temporalLabel_);
 
                     row->addStretch();
@@ -311,7 +311,7 @@ namespace Lingjing {
                     temporalValue_ = new QLabel("15%", group);
                     temporalValue_->setStyleSheet(
                         "color: #4A9EFF;"
-                        "font-size: 11px;"
+                        "font-size: 16px;"
                         "font-weight: bold;");
                     row->addWidget(temporalValue_);
 
@@ -378,7 +378,7 @@ namespace Lingjing {
                     "无需 Tensor Core / 深度学习。可单独使用，也可与 IRFG 帧生成叠加。",
                     group);
                 info->setWordWrap(true);
-                info->setStyleSheet("color: #9AA4B4; font-size: 11px;");
+                info->setStyleSheet("color: #9AA4B4; font-size: 16px;");
                 layout->addWidget(info);
 
                 al->addWidget(group);
@@ -464,13 +464,13 @@ namespace Lingjing {
             if (hwnd) {
                 gameName_->setStyleSheet(
                     "color: #4AD98A;"
-                    "font-size: 18px;"
+                    "font-size: 20px;"
                     "font-weight: bold;");
             }
             else {
                 gameName_->setStyleSheet(
                     "color: #E8ECF2;"
-                    "font-size: 18px;"
+                    "font-size: 20px;"
                     "font-weight: bold;");
             }
         }

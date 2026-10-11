@@ -150,7 +150,7 @@ namespace Lingjing {
                 "background-color: #4A9EFF;"
                 "border-radius: 8px;"
                 "color: white;"
-                "font-size: 18px;"
+                "font-size: 20px;"
                 "font-weight: bold;");
             appIcon_->setAlignment(Qt::AlignCenter);
             appIcon_->setText("灵");
@@ -160,7 +160,7 @@ namespace Lingjing {
             appTitle_ = new QLabel("灵境 Lingjing", this);
             appTitle_->setObjectName("appTitle");
             appTitle_->setStyleSheet(
-                "font-size: 14px;"
+                "font-size: 16px;"
                 "font-weight: bold;"
                 "color: #E8ECF2;");
             layout->addWidget(appTitle_);
@@ -207,7 +207,7 @@ namespace Lingjing {
                     "  color: #9AA4B4;"
                     "  border: none;"
                     "  border-radius: 6px;"
-                    "  font-size: 14px;"
+                    "  font-size: 16px;"
                     "}"
                     "QPushButton:hover {"
                     "  background-color: #2A3240;"
@@ -225,7 +225,7 @@ namespace Lingjing {
                 "  color: #9AA4B4;"
                 "  border: none;"
                 "  border-radius: 6px;"
-                "  font-size: 14px;"
+                "  font-size: 16px;"
                 "}"
                 "QPushButton:hover {"
                 "  background-color: #FF5A5A;"
@@ -314,7 +314,7 @@ namespace Lingjing {
             previewLabel_->setStyleSheet(
                 "background: rgba(16,20,28,235); color: #AAB4C8;"
                 "border: 1px solid #2A3240; border-radius: 8px;"
-                "font-size: 14px;");
+                "font-size: 16px;");
             previewLabel_->setText("输出画面预览");
             previewLabel_->hide();
 
@@ -364,14 +364,14 @@ namespace Lingjing {
                 QLabel* lbl = new QLabel(label, this);
                 lbl->setStyleSheet(
                     "color: #9AA4B4;"
-                    "font-size: 11px;");
+                    "font-size: 16px;");
                 return lbl;
             };
             // 状态
             stateLabel_ = new QLabel("就绪", this);
             stateLabel_->setStyleSheet(
                 "color: #4AD98A;"
-                "font-size: 12px;"
+                "font-size: 16px;"
                 "font-weight: bold;");
             layout->addWidget(stateLabel_);
 
@@ -382,7 +382,7 @@ namespace Lingjing {
             layout->addWidget(sourceFpsLabel_);
 
             QLabel* arrow = new QLabel("→", this);
-            arrow->setStyleSheet("color: #4A9EFF; font-size: 14px;");
+            arrow->setStyleSheet("color: #4A9EFF; font-size: 16px;");
             layout->addWidget(arrow);
 
             outputFpsLabel_ = makeIndicator("输出: -- FPS");
@@ -643,10 +643,10 @@ namespace Lingjing {
                                 stateLabel_->setText(text);
                                 if (text == "错误") {
                                     stateLabel_->setStyleSheet(
-                                        "color: #FF6B6B; font-size: 12px; font-weight: bold;");
+                                        "color: #FF6B6B; font-size: 16px; font-weight: bold;");
                                 } else {
                                     stateLabel_->setStyleSheet(
-                                        "color: #4AD98A; font-size: 12px; font-weight: bold;");
+                                        "color: #4AD98A; font-size: 16px; font-weight: bold;");
                                 }
                             }
                             // 同步按钮可用状态（启动/暂停/停止）
@@ -680,7 +680,7 @@ namespace Lingjing {
                             if (stateLabel_) {
                                 stateLabel_->setText("错误: " + msg);
                                 stateLabel_->setStyleSheet(
-                                    "color: #FF6B6B; font-size: 12px; font-weight: bold;");
+                                    "color: #FF6B6B; font-size: 16px; font-weight: bold;");
                             }
                         }, Qt::QueuedConnection);
                     }
@@ -1144,7 +1144,7 @@ namespace Lingjing {
                         "QLabel { background: transparent; }"
                         "QPushButton { background-color: #1A2029; color: #E8ECF2;"
                         "  border: 1px solid #2A3240; border-radius: 6px;"
-                        "  padding: 8px 22px; font-size: 12px; }"
+                        "  padding: 8px 22px; font-size: 16px; }"
                         "QPushButton:hover { border-color: #4A9EFF; }"
                         "QPushButton#dl { background-color: #4A9EFF; color: white;"
                         "  border: none; }"
@@ -1163,7 +1163,7 @@ namespace Lingjing {
                     if (!notes.isEmpty()) {
                         auto* body = new QLabel(notes, &dlg);
                         body->setWordWrap(true);
-                        body->setStyleSheet("font-size: 12px; color: #9AA4B4;");
+                        body->setStyleSheet("font-size: 16px; color: #9AA4B4;");
                         lay->addWidget(body);
                     }
 
@@ -1287,7 +1287,7 @@ namespace Lingjing {
                         "QLabel { background: transparent; }"
                         "QPushButton { background-color: #1A2029; color: #E8ECF2;"
                         "  border: 1px solid #2A3240; border-radius: 6px;"
-                        "  padding: 8px 22px; font-size: 12px; }"
+                        "  padding: 8px 22px; font-size: 16px; }"
                         "QPushButton:hover { border-color: #4A9EFF; }"
                         "QPushButton#ok { background-color: #4A9EFF; color: white;"
                         "  border: none; }"
@@ -1306,12 +1306,12 @@ namespace Lingjing {
                         QStringLiteral("当前已是最新版本"), &dlg);
                     title->setAlignment(Qt::AlignCenter);
                     title->setStyleSheet(
-                        "font-size: 14px; font-weight: bold; color: #E8ECF2;");
+                        "font-size: 16px; font-weight: bold; color: #E8ECF2;");
 
                     auto* sub = new QLabel(
                         QStringLiteral("灵境 Lingjing v%1").arg(latest), &dlg);
                     sub->setAlignment(Qt::AlignCenter);
-                    sub->setStyleSheet("font-size: 12px; color: #AEB8C8;");
+                    sub->setStyleSheet("font-size: 16px; color: #AEB8C8;");
 
                     lay->addWidget(icon);
                     lay->addWidget(title);
